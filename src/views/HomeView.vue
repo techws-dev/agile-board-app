@@ -1,18 +1,37 @@
 <template>
   <div class="home">
     <img alt="Vue logo" src="../assets/logo.png">
-    <HelloWorld msg="Welcome to Your Vue.js App"/>
+
+    <ul>
+      <li v-for="project in projects" :key="project">
+        {{ project }}
+      </li>
+    </ul>
+    <input v-model="name">
+    <button @click="newProject">add</button>
   </div>
 </template>
 
 <script>
-// @ is an alias to /src
-import HelloWorld from '@/components/HelloWorld.vue'
+import { mapState, mapActions } from 'vuex'
 
 export default {
   name: 'HomeView',
-  components: {
-    HelloWorld
-  }
+  data() {
+    return {
+      name: ''
+    }
+  },
+  methods: {
+    newProject() {
+      this.addProject(this.name)
+    },
+    ...mapActions([
+      'addProject'
+    ])
+  },
+  computed: mapState([
+    'projects'
+  ])
 }
 </script>
