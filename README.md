@@ -1,4 +1,9 @@
-# agile-board-app
+# Agile Board App
+
+An application that display a virtual agile board for managing your project workflow.
+
+Developed with __Vue 3__.
+
 
 ## Project setup
 ```
@@ -20,5 +25,3 @@ npm run build
 npm run lint
 ```
 
-### Customize configuration
-See [Configuration Reference](https://cli.vuejs.org/config/).
