@@ -1,27 +1,29 @@
 <template>
-  <div class="home">
-    <img alt="Vue logo" src="../assets/logo.png">
+  <HelloWorld />
 
-    <ul>
-      <li v-for="project in projects" :key="project">
-        {{ project }}
-      </li>
-    </ul>
-    <input v-model="name">
-    <button @click="newProject">add</button>
-  </div>
+  <ul>
+    <li v-for="project in projects" :key="project">
+      {{ project }}
+    </li>
+  </ul>
+  <input v-model="name">
+  <button @click="newProject">add</button>
 </template>
 
 <script>
+import { defineComponent } from 'vue';
 import { mapState, mapActions } from 'vuex'
 
-export default {
+// Components
+import HelloWorld from '../components/HelloWorld.vue';
+
+export default defineComponent({
   name: 'HomeView',
-  data() {
-    return {
-      name: ''
-    }
-  },
+
+  data: () => ({
+    name: 'test'
+  }),
+
   methods: {
     newProject() {
       this.addProject(this.name)
@@ -30,8 +32,13 @@ export default {
       'addProject'
     ])
   },
+
   computed: mapState([
     'projects'
-  ])
-}
+  ]),
+
+  components: {
+    HelloWorld,
+  },
+});
 </script>
