@@ -8,10 +8,13 @@ export default createStore({
     tickets: []
   },
   getters: {
+    getProjectById: (state) => (id) => {
+      return state.projects.find(project => project.id === id)
+    }
   },
   mutations: {
     addProject(state, {id, name}) {
-      state.projects.push([id, name])
+      state.projects.push({id, name})
     }
   },
   actions: {

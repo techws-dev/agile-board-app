@@ -1,33 +1,80 @@
 <template>
-  <HelloWorld />
+  <v-container class="grey lighten-5">
+    <v-card
+      class="mx-auto my-12"
+      max-width="480">
+      <v-card-title>Create a project</v-card-title>
 
-  <ul>
-    <li v-for="project in projects" :key="project">
-      {{ project }}
-    </li>
-  </ul>
-  <input v-model="name">
-  <button @click="newProject">add</button>
+      <v-card-text>
+        <v-form
+          ref="form"
+          v-model="valid"
+          validation-lazy
+          @submit="newProject">
+
+          <v-text-field
+            v-model="name"
+            :counter="50"
+            :rules="nameRules"
+            label="Project name"
+            required
+            @input="validate()"
+          ></v-text-field>
+
+          <v-btn
+            :disabled="!valid"
+            color="primary"
+            class="mr-4"
+            @click="newProject"
+          >
+            Create
+          </v-btn>
+
+        </v-form>
+      </v-card-text>
+    </v-card>
+    
+    <v-row>
+      <v-col
+        cols="12"
+        sm="6"
+        lg="4"
+        v-for="project in projects" :key="project">
+        <v-card v-bind:href="'/project/' + project.id">
+          <v-card-title>{{ project.name }}</v-card-title>
+          <v-card-text>{{ project.id }}</v-card-text>
+        </v-card>
+      </v-col>
+    </v-row>
+    
+  </v-container>
 </template>
 
 <script>
-import { defineComponent } from 'vue';
+
 import { mapState, mapActions } from 'vuex'
 
-// Components
-import HelloWorld from '../components/HelloWorld.vue';
-
-export default defineComponent({
-  name: 'HomeView',
-
+export default {
   data: () => ({
-    name: 'test'
+    valid: false,
+    name: '',
+    nameRules: [
+      v => !!v || 'Name is required',
+      v => (v && v.length <= 50) || 'Name must be less than 50 characters',
+    ],
   }),
 
   methods: {
-    newProject() {
-      this.addProject(this.name)
+    validate() {
+      this.$refs.form.validate()
     },
+
+    newProject() {
+      this.addProject(this.name).then(() => {
+        this.name = ''
+      })
+    },
+
     ...mapActions([
       'addProject'
     ])
@@ -36,9 +83,6 @@ export default defineComponent({
   computed: mapState([
     'projects'
   ]),
+}
 
-  components: {
-    HelloWorld,
-  },
-});
 </script>
