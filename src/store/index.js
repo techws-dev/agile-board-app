@@ -10,17 +10,30 @@ export default createStore({
   getters: {
     getProjectById: (state) => (id) => {
       return state.projects.find(project => project.id === id)
+    },
+
+    getTicketsByProjectId: (state) => (projectId) => {
+      return state.tickets.filter(ticket => ticket.projectId === projectId)
     }
   },
   mutations: {
     addProject(state, {id, name}) {
       state.projects.push({id, name})
+    },
+
+    addTicket(state, {id, projectId, title, description, category}) {
+      state.tickets.push({id, projectId, title, description, category})
     }
   },
   actions: {
     addProject(context, name) {
       let id = uuidv4()
       context.commit('addProject', {id, name})
+    },
+
+    addTicket(context, {projectId, title, description, category}) {
+      let id = uuidv4()
+      context.commit('addTicket', {id, projectId, title, description, category})
     }
   },
   modules: {

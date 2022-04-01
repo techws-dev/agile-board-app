@@ -1,5 +1,5 @@
 <template>
-  <v-container class="grey lighten-5">
+  <v-container>
     <v-card
       class="mx-auto my-12"
       max-width="480">
