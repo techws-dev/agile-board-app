@@ -61,26 +61,26 @@
               label="Description"
             ></v-textarea>
 
+            <v-btn
+              class="mr-2"
+              color="normal"
+              text
+              @click="closeTicketDialog"
+            >
+              Cancel
+            </v-btn>
+
+            <v-btn
+              color="primary"
+              text
+              :disabled="!ticketFormValid"
+              @click="saveTicket"
+            >
+              Save
+            </v-btn>
+
           </v-form>
         </v-card-text>
-        <v-card-actions>
-          <v-spacer></v-spacer>
-          <v-btn
-            color="normal"
-            text
-            @click="closeTicketDialog"
-          >
-            Cancel
-          </v-btn>
-          <v-btn
-            color="primary"
-            text
-            :disabled="!ticketFormValid"
-            @click="closeTicketDialog"
-          >
-            Save
-          </v-btn>
-        </v-card-actions>
       </v-card>
     </v-dialog>
   </v-container>
@@ -161,7 +161,7 @@ export default {
     },
 
     saveTicket() {
-
+      alert('test')
       this.closeTicketDialog()
     },
 
