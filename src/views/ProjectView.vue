@@ -168,7 +168,9 @@ export default {
       this.ticketDescription = ''
     },
 
-    saveTicket() {
+    async saveTicket() {
+      await this.validateTicketForm()
+
       if(!this.ticketFormValid) return
 
       this.$refs.notification.show('Ticket has been created')
@@ -176,8 +178,8 @@ export default {
       this.closeTicketDialog()
     },
 
-    validateTicketForm() {
-      this.$refs.ticketForm.validate()
+    async validateTicketForm() {
+      await this.$refs.ticketForm.validate()
     },
 
     ...mapActions([
