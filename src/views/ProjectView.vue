@@ -20,7 +20,7 @@
       <v-col
         style="min-width: 250px;max-width: 250px;"
         v-for="category in categories" :key="category.key">
-        <div class="bg-purple-lighten-2 text-white pa-2 mb-2" v-bind:id="category.key">
+        <div class="bg-purple-lighten-2 text-white pa-2 mb-4" v-bind:id="category.key">
           <h3 class="text-white text-truncate flex-grow-1">{{ category.label }}</h3>
         </div>
 
@@ -28,7 +28,8 @@
           <v-card 
             v-for="ticket in filteredTicketsByCategory(category.key)" 
             :key="ticket.id" 
-            class="mb-2 select-none"
+            class="mb-4 select-none"
+            :id="'ticket-' + ticket.id"
           >
             <v-card-title>
               {{ ticket.title }}
@@ -108,7 +109,7 @@
 
 import { mapGetters, mapActions } from "vuex"
 import NotificationComponent from '../components/NotificationComponent.vue'
-import Sortable from 'sortablejs'
+import Sortable from 'sortablejs/modular/sortable.complete.esm.js'
 
 export default {
   components: {
@@ -150,17 +151,42 @@ export default {
     ],
   }),
 
-  mounted() {
+  async mounted() {
     let id = this.$route.params.id
 
-    this.project = this.getProjectById(id)
+    let project = await this.getProjectById(id)
+
+    if (project) {
+      this.project = project
+    } else {
+      this.$router.push({ path: '/' })
+      return
+    }
+    
     this.tickets = this.getTicketsByProjectId(id)
 
     this.categories.forEach(category => {
-      new Sortable(document.getElementById(`category-${category.key}`), {
+      Sortable.create(document.getElementById(`category-${category.key}`), {
         group: 'shared',
-        animation: 150
+        animation: 150,
+        swapThreshold: 1,
+        onEnd: evt => {
+          let ticketId = evt.item.id.replace('ticket-', '')
+          let categoryFrom = evt.from.id.replace('category-', '')
+          let categoryTo = evt.to.id.replace('category-', '')
+          let newIndex = evt.newIndex
+          let oldIndex = evt.oldIndex
+
+          if (categoryFrom !== categoryTo || newIndex !== oldIndex) {
+            console.log('anything to do')
+
+            console.log(this.getTicketsByProjectId(id))
+          }
+
+          console.log(`${ticketId} moved from ${categoryFrom} to ${categoryTo} and from index ${oldIndex} to ${newIndex}`)
+        }
       })
+      
     })
   },
 
