@@ -46,15 +46,20 @@
         </v-card>
       </v-col>
     </v-row>
-    
+
+    <notification-component ref="notification"></notification-component>
   </v-container>
 </template>
 
 <script>
 
 import { mapState, mapActions } from 'vuex'
+import NotificationComponent from '../components/NotificationComponent.vue'
 
 export default {
+  components: {
+    NotificationComponent
+  },
   data: () => ({
     valid: false,
     name: '',
@@ -70,7 +75,11 @@ export default {
     },
 
     newProject() {
+      if(!this.valid) return
+
       this.addProject(this.name).then(() => {
+        this.$refs.notification.show('Project has been created')
+
         this.name = ''
       })
     },
