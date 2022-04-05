@@ -33,7 +33,7 @@
         </v-form>
       </v-card-text>
     </v-card>
-    
+
     <v-row>
       <v-col
         cols="12"
@@ -70,11 +70,13 @@ export default {
   }),
 
   methods: {
-    validate() {
-      this.$refs.form.validate()
+    async validate() {
+      await this.$refs.form.validate()
     },
 
-    newProject() {
+    async newProject() {
+      await this.validate()
+
       if(!this.valid) return
 
       this.addProject(this.name).then(() => {
