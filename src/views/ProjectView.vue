@@ -24,17 +24,19 @@
           <h3 class="text-white text-truncate flex-grow-1">{{ category.label }}</h3>
         </div>
 
-        <div>
-          <div v-for="ticket in filteredTicketsByCategory(category.key)" :key="ticket.id">
-            <v-card class="mb-2 select-none">
-              <v-card-title>
-                {{ ticket.title }}
-              </v-card-title>
-              <v-card-text>
-                {{ ticket.description }}
-              </v-card-text>
-            </v-card>
-          </div>
+        <div :id="'category-' + category.key">
+          <v-card 
+            v-for="ticket in filteredTicketsByCategory(category.key)" 
+            :key="ticket.id" 
+            class="mb-2 select-none"
+          >
+            <v-card-title>
+              {{ ticket.title }}
+            </v-card-title>
+            <v-card-text>
+              {{ ticket.description }}
+            </v-card-text>
+          </v-card>
         </div>
       </v-col>
     </v-row>
@@ -106,6 +108,7 @@
 
 import { mapGetters, mapActions } from "vuex"
 import NotificationComponent from '../components/NotificationComponent.vue'
+import Sortable from 'sortablejs'
 
 export default {
   components: {
@@ -152,6 +155,13 @@ export default {
 
     this.project = this.getProjectById(id)
     this.tickets = this.getTicketsByProjectId(id)
+
+    this.categories.forEach(category => {
+      new Sortable(document.getElementById(`category-${category.key}`), {
+        group: 'shared',
+        animation: 150
+      })
+    })
   },
 
   methods: {
