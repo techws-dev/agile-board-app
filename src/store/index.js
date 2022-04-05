@@ -40,6 +40,6 @@ export default createStore({
   },
   plugins: [createPersistedState({
     key: 'aba',
-    paths: ['projects']
+    paths: ['projects', 'tickets']
   })]
 })

@@ -20,8 +20,21 @@
       <v-col
         style="min-width: 250px;max-width: 250px;"
         v-for="category in categories" :key="category.key">
-        <div class="bg-purple-lighten-2 text-white pa-2" v-bind:id="category.key">
+        <div class="bg-purple-lighten-2 text-white pa-2 mb-2" v-bind:id="category.key">
           <h3 class="text-white text-truncate flex-grow-1">{{ category.label }}</h3>
+        </div>
+
+        <div>
+          <div v-for="ticket in filteredTicketsByCategory(category.key)" :key="ticket.id">
+            <v-card class="mb-2 select-none">
+              <v-card-title>
+                {{ ticket.title }}
+              </v-card-title>
+              <v-card-text>
+                {{ ticket.description }}
+              </v-card-text>
+            </v-card>
+          </div>
         </div>
       </v-col>
     </v-row>
@@ -173,13 +186,28 @@ export default {
 
       if(!this.ticketFormValid) return
 
-      this.$refs.notification.show('Ticket has been created')
+      let ticketData = {
+        projectId: this.project.id,
+        title: this.ticketTitle, 
+        description: this.ticketDescription, 
+        category: this.ticketCategory
+      }
 
-      this.closeTicketDialog()
+      this.addTicket(ticketData).then(() => {
+        this.tickets = this.getTicketsByProjectId(this.project.id)
+
+        this.$refs.notification.show('Ticket has been created')
+
+        this.closeTicketDialog()
+      })
     },
 
     async validateTicketForm() {
       await this.$refs.ticketForm.validate()
+    },
+
+    filteredTicketsByCategory(category) {
+      return this.tickets.filter(ticket => ticket.category === category)
     },
 
     ...mapActions([
@@ -200,3 +228,11 @@ export default {
 }
 
 </script>
+
+<style scoped>
+
+.select-none{
+  user-select: none;
+}
+
+</style>
