@@ -54,6 +54,7 @@
               label="Title"
               required
               @input="validateTicketForm()"
+              @keyup.enter="saveTicket"
             ></v-text-field>
 
             <v-textarea
@@ -83,13 +84,20 @@
         </v-card-text>
       </v-card>
     </v-dialog>
+
+    <notification-component ref="notification"></notification-component>
   </v-container>
 </template>
 
 <script>
+
 import { mapGetters, mapActions } from "vuex"
+import NotificationComponent from '../components/NotificationComponent.vue'
 
 export default {
+  components: {
+    NotificationComponent
+  },
   data: () => ({
     categories: [
       {
@@ -161,7 +169,10 @@ export default {
     },
 
     saveTicket() {
-      alert('test')
+      if(!this.ticketFormValid) return
+
+      this.$refs.notification.show('Ticket has been created')
+
       this.closeTicketDialog()
     },
 
@@ -185,4 +196,5 @@ export default {
     ])
   }
 }
+
 </script>
