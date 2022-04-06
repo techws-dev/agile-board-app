@@ -13,12 +13,12 @@
       </v-btn>
     </div>
 
-    <v-row id="categories" dense style="overflow: auto;">
+    <v-row id="categories" dense style="overflow: auto;" class="align-start">
       <v-col
         style="min-width: 250px;max-width: 250px;"
         v-for="category in categories" :key="category.key"
         :id="'category-' + category.key">
-        <div class="category-header bg-purple-lighten-2 text-white pa-2 mb-4 select-none" v-bind:id="category.key">
+        <div class="category-header bg-black text-white pa-2 mb-4 select-none" v-bind:id="category.key">
           <h3 class="text-white text-truncate flex-grow-1">{{ category.label }}</h3>
         </div>
 
@@ -186,6 +186,7 @@ export default {
       Sortable.create(document.getElementById(`categories`), {
         group: 'categories',
         animation: 150,
+        swapThreshold: 0.1,
         handle: '.category-header',
         onEnd: evt => {
           let category = evt.item.id.replace('category-', '')
