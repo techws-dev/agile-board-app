@@ -4,10 +4,15 @@ import { v4 as uuidv4 } from 'uuid'
 
 export default createStore({
   state: {
+    appVersion: process.env.VUE_APP_VERSION,
     projects: [],
     tickets: []
   },
   getters: {
+    appVersion: (state) => {
+      return state.appVersion
+    },
+
     getProjectById: (state) => (id) => {
       return state.projects.find(project => project.id === id)
     },
