@@ -2,6 +2,7 @@
   <v-container
     fluid>
 
+
     <div class="d-flex align-center">
       <h1 class="mr-2">{{ project.name }}</h1>
       <v-btn
@@ -55,18 +56,18 @@
             validation-lazy
             @submit="saveTicket">
 
+            <v-btn-toggle class="mb-8" v-model="ticketColor" style="height: auto;" mandatory>
+              <v-btn v-for="color in colorsSelect" :key="color" :value="color[0]" class="pa-2" size="small" :style="'background-color: ' + color[1].lighten1 + ';'">
+                {{ color[0] }}
+              </v-btn>
+            </v-btn-toggle>
+
             <v-select
               v-model="ticketCategory"
               :items="categoriesSelect"
               label="Category"
               required
             ></v-select>
-
-            <v-btn-toggle class="mb-8" v-model="ticketColor" style="height: auto;" mandatory>
-              <v-btn v-for="color in colorsSelect" :key="color" :value="color[0]" class="pa-2" size="small" :style="'background-color: ' + color[1].lighten1 + ';'">
-                {{ color[0] }}
-              </v-btn>
-            </v-btn-toggle>
 
             <v-text-field
               v-model="ticketTitle"
