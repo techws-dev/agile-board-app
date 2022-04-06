@@ -21,8 +21,8 @@ export default createStore({
       state.projects.push({id, name})
     },
 
-    addTicket(state, {id, projectId, title, description, category}) {
-      state.tickets.push({id, projectId, title, description, category})
+    addTicket(state, {id, projectId, title, description, category, color}) {
+      state.tickets.push({id, projectId, title, description, category, color})
     }
   },
   actions: {
@@ -31,9 +31,9 @@ export default createStore({
       context.commit('addProject', {id, name})
     },
 
-    addTicket(context, {projectId, title, description, category}) {
+    addTicket(context, {projectId, title, description, category, color}) {
       let id = uuidv4()
-      context.commit('addTicket', {id, projectId, title, description, category})
+      context.commit('addTicket', {id, projectId, title, description, category, color})
     }
   },
   modules: {
