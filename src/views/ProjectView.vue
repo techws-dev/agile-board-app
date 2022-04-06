@@ -28,7 +28,7 @@
             :key="ticket.id" 
             class="mb-4 select-none"
             :id="'ticket-' + ticket.id"
-            :style="'background-color: ' + colors[ticket.color].lighten2 + ';'"
+            :style="'background-color: ' + colors[ticket.color].lighten1 + ';'"
           >
             <v-card-title>
               {{ ticket.title }}
@@ -62,8 +62,8 @@
               required
             ></v-select>
 
-            <v-btn-toggle class="flex-wrap mb-8" v-model="ticketColor" style="height: auto;" mandatory>
-              <v-btn v-for="color in colorsSelect" :key="color" :value="color[0]" class="pa-2" size="small" :style="'background-color: ' + color[1].lighten2 + ';'">
+            <v-btn-toggle class="mb-8" v-model="ticketColor" style="height: auto;" mandatory>
+              <v-btn v-for="color in colorsSelect" :key="color" :value="color[0]" class="pa-2" size="small" :style="'background-color: ' + color[1].lighten1 + ';'">
                 {{ color[0] }}
               </v-btn>
             </v-btn-toggle>
@@ -124,7 +124,12 @@ export default {
   },
   data: () => ({
     /* Use Vuetify colors definition */
-    colors: colors,
+    colors: Object.fromEntries(
+      Object.entries(colors).filter(
+        // eslint-disable-next-line no-unused-vars
+        ([key, value]) => ['green', 'blue', 'yellow', 'orange', 'red', 'purple'].includes(key)
+      )
+    ),
     categories: [
       {
         key: 'todo',
@@ -162,6 +167,7 @@ export default {
   }),
 
   async mounted() {
+    console.log(this.colors)
     let id = this.$route.params.id
 
     let project = await this.getProjectById(id)
@@ -239,7 +245,7 @@ export default {
 
     resetTicketDialog() {
       this.ticketId = null
-      this.ticketColor = 'grey'
+      this.ticketColor = 'yellow'
       this.ticketCategory = 'todo'
       this.ticketTitle = ''
       this.ticketDescription = ''
