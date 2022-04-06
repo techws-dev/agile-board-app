@@ -1,8 +1,6 @@
 <template>
   <v-container
-    fluid
-    class="d-flex flex-column pa-0"
-    style="height: 100vh;">
+    fluid>
 
     <div class="d-flex align-center">
       <h1 class="mr-2">{{ project.name }}</h1>
@@ -14,9 +12,8 @@
         New ticket
       </v-btn>
     </div>
-    
 
-    <v-row class="flex-nowrap" id="categories" dense style="overflow: auto;">
+    <v-row id="categories" dense style="overflow: auto;">
       <v-col
         style="min-width: 250px;max-width: 250px;"
         v-for="category in categories" :key="category.key"
@@ -31,6 +28,7 @@
             :key="ticket.id" 
             class="mb-4 select-none"
             :id="'ticket-' + ticket.id"
+            :style="'background-color: ' + colors[ticket.color].lighten2 + ';'"
           >
             <v-card-title>
               {{ ticket.title }}
@@ -63,6 +61,12 @@
               label="Category"
               required
             ></v-select>
+
+            <v-btn-toggle class="flex-wrap mb-8" v-model="ticketColor" style="height: auto;" mandatory>
+              <v-btn v-for="color in colorsSelect" :key="color" :value="color[0]" class="pa-2" size="small" :style="'background-color: ' + color[1].lighten2 + ';'">
+                {{ color[0] }}
+              </v-btn>
+            </v-btn-toggle>
 
             <v-text-field
               v-model="ticketTitle"
@@ -112,11 +116,15 @@ import { mapGetters, mapActions } from "vuex"
 import NotificationComponent from '../components/NotificationComponent.vue'
 import Sortable from 'sortablejs/modular/sortable.complete.esm.js'
 
+import colors from 'vuetify/lib/util/colors'
+
 export default {
   components: {
     NotificationComponent
   },
   data: () => ({
+    /* Use Vuetify colors definition */
+    colors: colors,
     categories: [
       {
         key: 'todo',
@@ -142,6 +150,7 @@ export default {
     tickets: [],
     ticketId: null,
     ticketCategory: 'todo',
+    ticketColor: null,
     ticketTitle: '',
     ticketDescription: '',
     ticketDialogVisible: false,
@@ -230,6 +239,7 @@ export default {
 
     resetTicketDialog() {
       this.ticketId = null
+      this.ticketColor = 'grey'
       this.ticketCategory = 'todo'
       this.ticketTitle = ''
       this.ticketDescription = ''
@@ -244,7 +254,8 @@ export default {
         projectId: this.project.id,
         title: this.ticketTitle, 
         description: this.ticketDescription, 
-        category: this.ticketCategory
+        category: this.ticketCategory,
+        color: this.ticketColor
       }
 
       this.addTicket(ticketData).then(() => {
@@ -272,6 +283,11 @@ export default {
   computed: {
     categoriesSelect() {
       return this.categories.map(category => category.key)
+    },
+
+    colorsSelect() {
+      // eslint-disable-next-line no-unused-vars
+      return Object.entries(this.colors).filter(([key, value]) => key !== 'shades')
     },
 
     ...mapGetters([
