@@ -16,15 +16,16 @@
     </div>
     
 
-    <v-row class="flex-nowrap" dense style="overflow: auto;">
+    <v-row class="flex-nowrap" id="categories" dense style="overflow: auto;">
       <v-col
         style="min-width: 250px;max-width: 250px;"
-        v-for="category in categories" :key="category.key">
-        <div class="bg-purple-lighten-2 text-white pa-2 mb-4" v-bind:id="category.key">
+        v-for="category in categories" :key="category.key"
+        :id="'category-' + category.key">
+        <div class="category-header bg-purple-lighten-2 text-white pa-2 mb-4 select-none" v-bind:id="category.key">
           <h3 class="text-white text-truncate flex-grow-1">{{ category.label }}</h3>
         </div>
 
-        <div :id="'category-' + category.key">
+        <div :id="'category-items-' + category.key">
           <v-card 
             v-for="ticket in filteredTicketsByCategory(category.key)" 
             :key="ticket.id" 
@@ -166,14 +167,31 @@ export default {
     this.tickets = this.getTicketsByProjectId(id)
 
     this.categories.forEach(category => {
-      Sortable.create(document.getElementById(`category-${category.key}`), {
-        group: 'shared',
+      /* Categories sorting */
+      Sortable.create(document.getElementById(`categories`), {
+        group: 'categories',
+        animation: 150,
+        handle: '.category-header',
+        onEnd: evt => {
+          let category = evt.item.id.replace('category-', '')
+          let newIndex = evt.newIndex
+          let oldIndex = evt.oldIndex
+          
+          if (newIndex !== oldIndex) {
+            console.log(`${category} moved from index ${oldIndex} to ${newIndex}`)
+          }
+        }
+      })
+
+      /* Tickets sorting / category update */
+      Sortable.create(document.getElementById(`category-items-${category.key}`), {
+        group: 'items',
         animation: 150,
         swapThreshold: 1,
         onEnd: evt => {
           let ticketId = evt.item.id.replace('ticket-', '')
-          let categoryFrom = evt.from.id.replace('category-', '')
-          let categoryTo = evt.to.id.replace('category-', '')
+          let categoryFrom = evt.from.id.replace('category-items-', '')
+          let categoryTo = evt.to.id.replace('category-items-', '')
           let newIndex = evt.newIndex
           let oldIndex = evt.oldIndex
 
