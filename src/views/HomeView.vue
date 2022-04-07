@@ -1,40 +1,28 @@
 <template>
-  <v-container>
-    <v-card
-      class="mx-auto my-12"
-      max-width="480">
-      <v-card-title>Create a project</v-card-title>
+  <v-toolbar
+    dark
+    prominent
+  >
+    <v-toolbar-title>Projects</v-toolbar-title>
 
-      <v-card-text>
-        <v-form
-          ref="form"
-          v-model="valid"
-          validation-lazy
-          @submit="newProject">
-
-          <v-text-field
-            v-model="name"
-            :counter="50"
-            :rules="nameRules"
-            label="Project name"
-            required
-            @input="validate()"
-          ></v-text-field>
-
-          <v-btn
-            :disabled="!valid"
-            color="primary"
-            class="mr-4"
-            @click="newProject"
-          >
-            Create
-          </v-btn>
-
-        </v-form>
-      </v-card-text>
-    </v-card>
-
+    <v-spacer></v-spacer>
+    
+    <v-btn
+      color="primary"
+      @click="openProjectDialog(null)"
+    >
+      New project
+    </v-btn>
+  </v-toolbar>
+  <v-container fluid>
     <v-row>
+      <v-col v-if="!projects.length">
+        <div class="pa-15 text-grey text-center">
+          No project created yet.
+        </div>
+      </v-col>
+      
+
       <v-col
         cols="12"
         sm="6"
@@ -46,6 +34,57 @@
         </v-card>
       </v-col>
     </v-row>
+
+    <v-dialog
+      v-model="projectDialogVisible"
+      >
+      <v-card
+        id="project-dialog-card">
+        <v-card-title>Create a project</v-card-title>
+
+        <v-card-text>
+          <v-form
+            ref="form"
+            v-model="projectFormValid"
+            validation-lazy
+            @submit="saveProject">
+
+            <v-text-field
+              v-model="projectName"
+              :counter="50"
+              :rules="nameRules"
+              label="Project name"
+              required
+              @input="validateProjectForm()"
+              @keyup.enter="saveProject"
+            ></v-text-field>
+
+          </v-form>
+        </v-card-text>
+        <v-card-actions>
+          <v-spacer></v-spacer>
+
+          <v-btn
+            class="mr-2"
+            color="normal"
+            text
+            @click="closeProjectDialog"
+          >
+            Cancel
+          </v-btn>
+
+          <v-btn
+            color="primary"
+            text
+            :disabled="!projectFormValid"
+            @click="saveProject"
+          >
+            Save
+          </v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
+
 
     <notification-component ref="notification"></notification-component>
   </v-container>
@@ -61,28 +100,52 @@ export default {
     NotificationComponent
   },
   data: () => ({
-    valid: false,
-    name: '',
+    projectFormValid: false,
+    projectId: null,
+    projectName: '',
     nameRules: [
       v => !!v || 'Name is required',
       v => (v && v.length <= 50) || 'Name must be less than 50 characters',
     ],
+    projectDialogVisible: false,
   }),
 
   methods: {
-    async validate() {
+    openProjectDialog(id) {
+      if (id == null) {
+        this.resetProjectDialog()
+      } else {
+        let project = this.projects.find(project => project.id === id)
+        this.projectId = project.id
+        this.projectName = project.name
+      }
+
+      this.projectDialogVisible = true
+    },
+
+    closeProjectDialog() {
+      this.resetProjectDialog()
+      this.projectDialogVisible = false
+    },
+
+    resetProjectDialog() {
+      this.projectId = null
+      this.projectName = ''
+    },
+
+    async validateProjectForm() {
       await this.$refs.form.validate()
     },
 
-    async newProject() {
-      await this.validate()
+    async saveProject() {
+      await this.validateProjectForm()
 
-      if(!this.valid) return
+      if(!this.projectFormValid) return
 
-      this['projects/add'](this.name).then(() => {
+      this['projects/add'](this.projectName).then(() => {
         this.$refs.notification.show('Project has been created')
 
-        this.name = ''
+        this.closeProjectDialog()
       })
     },
 
@@ -97,3 +160,17 @@ export default {
 }
 
 </script>
+
+<style scoped>
+
+#project-dialog-card {
+  width: 500px;
+}
+
+@media (max-width: 500px) {
+  #project-dialog-card {
+    width: 100%;
+  }
+}
+
+</style>
