@@ -79,7 +79,7 @@ export default {
 
       if(!this.valid) return
 
-      this.addProject(this.name).then(() => {
+      this['projects/add'](this.name).then(() => {
         this.$refs.notification.show('Project has been created')
 
         this.name = ''
@@ -87,13 +87,13 @@ export default {
     },
 
     ...mapActions([
-      'addProject'
+      'projects/add'
     ])
   },
 
-  computed: mapState([
-    'projects'
-  ]),
+  computed: {
+    ...mapState('projects', ['projects']),
+  }
 }
 
 </script>

@@ -41,9 +41,9 @@ export default {
   }),
 
   computed: {
-    ...mapGetters([
-      'appVersion'
-    ])
+    ...mapGetters({
+      appVersion: 'settings/appVersion'
+    })
   }
 }
 </script>
