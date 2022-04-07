@@ -173,7 +173,7 @@ export default {
     console.log(this.colors)
     let id = this.$route.params.id
 
-    let project = await this.getProjectById(id)
+    let project = await this['projects/getById'](id)
 
     if (project) {
       this.project = project
@@ -182,7 +182,7 @@ export default {
       return
     }
     
-    this.tickets = this.getTicketsByProjectId(id)
+    this.tickets = this['tickets/getByProjectId'](id)
 
     this.categories.forEach(category => {
       /* Categories sorting */
@@ -217,7 +217,7 @@ export default {
           if (categoryFrom !== categoryTo || newIndex !== oldIndex) {
             console.log('anything to do')
 
-            console.log(this.getTicketsByProjectId(id))
+            console.log(this['tickets/getByProjectId'](id))
           }
 
           console.log(`${ticketId} moved from ${categoryFrom} to ${categoryTo} and from index ${oldIndex} to ${newIndex}`)
@@ -268,8 +268,8 @@ export default {
         color: this.ticketColor
       }
 
-      this.addTicket(ticketData).then(() => {
-        this.tickets = this.getTicketsByProjectId(this.project.id)
+      this['tickets/add'](ticketData).then(() => {
+        this.tickets = this['tickets/getByProjectId'](this.project.id)
 
         this.$refs.notification.show('Ticket has been created')
 
@@ -286,7 +286,7 @@ export default {
     },
 
     ...mapActions([
-      'addTicket'
+      'tickets/add'
     ])
   },
 
@@ -301,8 +301,8 @@ export default {
     },
 
     ...mapGetters([
-      'getProjectById',
-      'getTicketsByProjectId'
+      'projects/getById',
+      'tickets/getByProjectId'
     ])
   }
 }
