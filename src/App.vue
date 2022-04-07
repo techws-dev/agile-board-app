@@ -47,3 +47,20 @@ export default {
   }
 }
 </script>
+
+<style>
+
+/* ugly fixes */
+.v-dialog .v-overlay__content {
+  max-width: none !important;
+  max-height: none !important;
+}
+
+
+@media (max-width: 959.98px) {
+  .v-dialog .v-overlay__content {
+    max-width: none !important;
+  }
+}
+
+</style>
