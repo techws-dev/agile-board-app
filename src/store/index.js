@@ -44,7 +44,7 @@ export default createStore({
   modules: {
   },
   plugins: [createPersistedState({
-    key: 'aba',
+    key: 'agile-board-app',
     paths: ['projects', 'tickets']
   })]
 })
