@@ -2,7 +2,6 @@
   <v-container
     fluid>
 
-
     <div class="d-flex align-center">
       <h1 class="mr-2">{{ project.name }}</h1>
       <v-btn
@@ -19,7 +18,7 @@
         style="min-width: 250px;max-width: 250px;"
         v-for="category in categories" :key="category.key"
         :id="'category-' + category.key">
-        <div class="category-header bg-black text-white pa-2 mb-4 select-none" v-bind:id="category.key">
+        <div class="category-header bg-black text-white pa-2 mb-2 select-none" v-bind:id="category.key">
           <h3 class="text-white text-truncate flex-grow-1">{{ category.label }}</h3>
         </div>
 
@@ -27,7 +26,7 @@
           <v-card 
             v-for="ticket in filteredTicketsByCategory(category.key)" 
             :key="ticket.id" 
-            class="mb-4 select-none"
+            class="mb-2 select-none"
             :id="'ticket-' + ticket.id"
             :style="'background-color: ' + colors[ticket.color].lighten1 + ';'"
           >
@@ -41,22 +40,25 @@
         </div>
       </v-col>
     </v-row>
-
+    
     <v-dialog
       v-model="ticketDialogVisible"
       >
       <v-card
-        width="480">
-        <v-card-title>New Ticket</v-card-title>
+        id="ticket-dialog-card">
+        <v-card-title>
+          New Ticket
+        </v-card-title>
 
         <v-card-text>
           <v-form
             ref="ticketForm"
             v-model="ticketFormValid"
             validation-lazy
-            @submit="saveTicket">
+            @submit="saveTicket"
+            >
 
-            <v-btn-toggle class="mb-8" v-model="ticketColor" style="height: auto;" mandatory>
+            <v-btn-toggle class="flex-wrap mb-8" v-model="ticketColor" style="height: auto;" mandatory>
               <v-btn v-for="color in colorsSelect" :key="color" :value="color[0]" class="pa-2" size="small" :style="'background-color: ' + color[1].lighten1 + ';'">
                 {{ color[0] }}
               </v-btn>
@@ -311,6 +313,16 @@ export default {
 
 .select-none{
   user-select: none;
+}
+
+#ticket-dialog-card {
+  width: 500px;
+}
+
+@media (max-width: 500px) {
+  #ticket-dialog-card {
+    width: 100%;
+  }
 }
 
 </style>
