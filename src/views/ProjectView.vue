@@ -1,17 +1,26 @@
 <template>
-  <v-container
-    fluid>
+  <v-toolbar
+    dark
+    prominent
+  >
+    <v-toolbar-title>{{ project.name }}</v-toolbar-title>
 
-    <div class="d-flex align-center">
-      <h1 class="mr-2">{{ project.name }}</h1>
-      <v-btn
-        flat
-        color="primary"
-        @click="openTicketDialog(null)"
-      >
-        New ticket
-      </v-btn>
-    </div>
+    <v-spacer></v-spacer>
+    
+    <v-btn
+      color="primary"
+      @click="openTicketDialog(null)"
+    >
+      New ticket
+    </v-btn>
+
+    <v-btn
+      color="primary"
+    >
+      New category
+    </v-btn>
+  </v-toolbar>
+  <v-container fluid>
 
     <v-row id="categories" dense style="overflow: auto;" class="align-start">
       <v-col
@@ -86,26 +95,29 @@
               label="Description"
             ></v-textarea>
 
-            <v-btn
-              class="mr-2"
-              color="normal"
-              text
-              @click="closeTicketDialog"
-            >
-              Cancel
-            </v-btn>
-
-            <v-btn
-              color="primary"
-              text
-              :disabled="!ticketFormValid"
-              @click="saveTicket"
-            >
-              Save
-            </v-btn>
-
           </v-form>
         </v-card-text>
+        <v-card-actions>
+          <v-spacer></v-spacer>
+
+          <v-btn
+            class="mr-2"
+            color="normal"
+            text
+            @click="closeTicketDialog"
+          >
+            Cancel
+          </v-btn>
+
+          <v-btn
+            color="primary"
+            text
+            :disabled="!ticketFormValid"
+            @click="saveTicket"
+          >
+            Save
+          </v-btn>
+        </v-card-actions>
       </v-card>
     </v-dialog>
 
