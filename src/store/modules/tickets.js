@@ -15,11 +15,19 @@ export default {
     add(state, {id, projectId, title, description, category, color}) {
       state.tickets.push({id, projectId, title, description, category, color})
     },
+
+    deleteFromProject(state, id) {
+      state.tickets = state.tickets.filter(ticket => ticket.projectId !== id)
+    },
   },
   actions: {
     add(context, {projectId, title, description, category, color}) {
       let id = uuidv4()
       context.commit('add', {id, projectId, title, description, category, color})
     },
+
+    deleteFromProject(context, id) {
+      context.commit('deleteFromProject', id)
+    }
   },
 }
