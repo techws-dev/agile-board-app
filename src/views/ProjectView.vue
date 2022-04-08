@@ -255,7 +255,6 @@ export default {
     },
 
     closeTicketDialog() {
-      this.resetTicketDialog()
       this.ticketDialogVisible = false
     },
 

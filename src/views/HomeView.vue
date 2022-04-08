@@ -59,7 +59,12 @@
       >
       <v-card
         id="project-dialog-card">
-        <v-card-title>Create a project</v-card-title>
+        <v-card-title v-if="projectId === null">
+          Create a project
+        </v-card-title>
+        <v-card-title v-else>
+          Update project
+        </v-card-title>
 
         <v-card-text>
           <v-form
@@ -184,7 +189,6 @@ export default {
     },
 
     closeProjectDialog() {
-      this.resetProjectDialog()
       this.projectDialogVisible = false
     },
 
