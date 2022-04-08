@@ -16,6 +16,15 @@ export default {
       state.tickets.push({id, projectId, title, description, category, color})
     },
 
+    update(state, {id, projectId, title, description, category, color}) {
+      let i = state.tickets.map(ticket => ticket.id).indexOf(id)
+      state.tickets[i].projectId = projectId
+      state.tickets[i].title = title
+      state.tickets[i].description = description
+      state.tickets[i].category = category
+      state.tickets[i].color = color
+    },
+
     deleteFromProject(state, id) {
       state.tickets = state.tickets.filter(ticket => ticket.projectId !== id)
     },
@@ -26,8 +35,12 @@ export default {
       context.commit('add', {id, projectId, title, description, category, color})
     },
 
+    update(context, {id, projectId, title, description, category, color}) {
+      context.commit('update',  {id, projectId, title, description, category, color})
+    },
+
     deleteFromProject(context, id) {
       context.commit('deleteFromProject', id)
-    }
+    },
   },
 }

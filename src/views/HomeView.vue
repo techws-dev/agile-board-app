@@ -186,6 +186,9 @@ export default {
       }
 
       this.projectDialogVisible = true
+      this.$nextTick(() => {
+        this.validateProjectForm()
+      })
     },
 
     closeProjectDialog() {

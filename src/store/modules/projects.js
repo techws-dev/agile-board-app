@@ -30,6 +30,7 @@ export default {
     add(context, name) {
       let id = uuidv4()
       context.commit('add', {id, name})
+      context.dispatch('categories/createDefaultCategoriesForProject', id, {root: true})
     },
 
     update(context, {id, name}) {
@@ -38,6 +39,7 @@ export default {
 
     delete(context, id) {
       context.commit('delete', {id})
+      context.dispatch('categories/deleteFromProject', id, {root: true})
       context.dispatch('tickets/deleteFromProject', id, {root: true})
     },
   },
