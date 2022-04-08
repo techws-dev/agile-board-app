@@ -31,6 +31,25 @@
         <v-card v-bind:href="'/project/' + project.id">
           <v-card-title>{{ project.name }}</v-card-title>
           <v-card-text>{{ project.id }}</v-card-text>
+          <v-card-actions>
+            <v-spacer></v-spacer>
+
+            <v-btn
+              color="primary"
+              text
+              @click.prevent="openProjectDialog(project.id)"
+            >
+              Edit
+            </v-btn>
+
+            <v-btn
+              color="red"
+              text
+              @click.prevent="openDeleteProjectDialog(project.id)"
+            >
+              Delete
+            </v-btn>
+          </v-card-actions>
         </v-card>
       </v-col>
     </v-row>
@@ -85,6 +104,35 @@
       </v-card>
     </v-dialog>
 
+    <v-dialog
+      v-model="deleteProjectDialogVisible"
+      >
+      <v-card
+        id="project-dialog-card">
+        <v-card-title>Delete confirmation</v-card-title>
+        <v-card-text>Are you sure to delete this project ?</v-card-text>
+        <v-card-actions>
+          <v-spacer></v-spacer>
+
+          <v-btn
+            class="mr-2"
+            color="normal"
+            text
+            @click="closeDeleteProjectDialog"
+          >
+            Cancel
+          </v-btn>
+
+          <v-btn
+            color="primary"
+            text
+            @click="deleteProject"
+          >
+            Confirm
+          </v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
 
     <notification-component ref="notification"></notification-component>
   </v-container>
@@ -108,9 +156,21 @@ export default {
       v => (v && v.length <= 50) || 'Name must be less than 50 characters',
     ],
     projectDialogVisible: false,
+    deleteProjectDialogVisible: false,
+    deleteProjectId: null
   }),
 
   methods: {
+    openDeleteProjectDialog(id) {
+      this.deleteProjectId = id
+      this.deleteProjectDialogVisible = true
+    },
+
+    closeDeleteProjectDialog() {
+      this.deleteProjectId = null
+      this.deleteProjectDialogVisible = false
+    },
+
     openProjectDialog(id) {
       if (id == null) {
         this.resetProjectDialog()
@@ -142,15 +202,42 @@ export default {
 
       if(!this.projectFormValid) return
 
-      this['projects/add'](this.projectName).then(() => {
-        this.$refs.notification.show('Project has been created')
+      if(this.projectId === null) {
+        this['projects/add'](this.projectName).then(() => {
+          this.$refs.notification.show('Project has been created')
+  
+          this.closeProjectDialog()
+        })
+      } else {
+        let projectData = {
+          id: this.projectId,
+          name: this.projectName
+        }
+        this['projects/update'](projectData).then(() => {
+          this.$refs.notification.show('Project has been updated')
+  
+          this.closeProjectDialog()
+        })
+      }
 
-        this.closeProjectDialog()
+    },
+
+    async deleteProject() {
+      let id = this.deleteProjectId
+
+      if(id === null) return
+
+      this['projects/delete'](id).then(() => {
+        this.$refs.notification.show('Project has been deleted')
+        
+        this.closeDeleteProjectDialog()
       })
     },
 
     ...mapActions([
-      'projects/add'
+      'projects/add',
+      'projects/update',
+      'projects/delete'
     ])
   },
 

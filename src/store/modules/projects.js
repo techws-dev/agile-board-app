@@ -15,11 +15,30 @@ export default {
     add(state, {id, name}) {
       state.projects.push({id, name})
     },
+
+    update(state, {id, name}) {
+      let i = state.projects.map(project => project.id).indexOf(id)
+      state.projects[i].name = name
+    },
+
+    delete(state, {id}) {
+      let i = state.projects.map(project => project.id).indexOf(id)
+      state.projects.splice(i, 1)
+    }
   },
   actions: {
     add(context, name) {
       let id = uuidv4()
       context.commit('add', {id, name})
+    },
+
+    update(context, {id, name}) {
+      context.commit('update', {id, name})
+    },
+
+    delete(context, id) {
+      context.commit('delete', {id})
+      context.dispatch('tickets/deleteFromProject', id, {root: true})
     },
   },
 }
