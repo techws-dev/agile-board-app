@@ -27,8 +27,25 @@
         style="min-width: 250px;max-width: 250px;"
         v-for="category in categories" :key="category.key"
         :id="'category-' + category.key">
-        <div class="category-header bg-black text-white pa-2 mb-2 select-none" v-bind:id="category.key">
+        <div class="d-flex category-header bg-black text-white pa-2 mb-2 select-none" v-bind:id="category.key">
           <h3 class="text-white text-truncate flex-grow-1">{{ category.label }}</h3>
+          
+          <v-spacer></v-spacer>
+
+          <v-btn
+            class="mr-2"
+            color="primary"
+            icon="mdi-pencil"
+            size="x-small"
+          >
+          </v-btn>
+
+          <v-btn
+            color="red"
+            icon="mdi-delete"
+            size="x-small"
+          >
+          </v-btn>
         </div>
 
         <div :id="'category-items-' + category.key">
@@ -45,6 +62,24 @@
             <v-card-text>
               {{ ticket.description }}
             </v-card-text>
+            <v-card-actions>
+              <v-spacer></v-spacer>
+
+              <v-btn
+                color="primary"
+                icon="mdi-pencil"
+                size="small"
+                @click.prevent="openTicketDialog(ticket.id)"
+              >
+              </v-btn>
+
+              <v-btn
+                color="red"
+                icon="mdi-delete"
+                size="small"
+              >
+              </v-btn>
+            </v-card-actions>
           </v-card>
         </div>
       </v-col>
@@ -55,8 +90,11 @@
       >
       <v-card
         id="ticket-dialog-card">
-        <v-card-title>
+        <v-card-title v-if="ticketId === null">
           New Ticket
+        </v-card-title>
+        <v-card-title v-else>
+          Update Ticket
         </v-card-title>
 
         <v-card-text>
@@ -145,24 +183,7 @@ export default {
         ([key, value]) => ['green', 'blue', 'yellow', 'orange', 'red', 'purple'].includes(key)
       )
     ),
-    categories: [
-      {
-        key: 'todo',
-        label: 'TODO'
-      },
-      {
-        key: 'progress',
-        label: 'Progress'
-      },
-      {
-        key: 'to-verify',
-        label: 'To verify'
-      },
-      {
-        key: 'done',
-        label: 'Done'
-      },
-    ],
+    categories: [],
     project: {
       id: null,
       name: null
@@ -194,48 +215,56 @@ export default {
       return
     }
     
-    this.tickets = this['tickets/getByProjectId'](id)
+    this.tickets = await this['tickets/getByProjectId'](id)
+    this.categories = await this['categories/getByProjectId'](id)
 
-    this.categories.forEach(category => {
-      /* Categories sorting */
-      Sortable.create(document.getElementById(`categories`), {
-        group: 'categories',
-        animation: 150,
-        swapThreshold: 0.1,
-        handle: '.category-header',
-        onEnd: evt => {
-          let category = evt.item.id.replace('category-', '')
-          let newIndex = evt.newIndex
-          let oldIndex = evt.oldIndex
-          
-          if (newIndex !== oldIndex) {
-            console.log(`${category} moved from index ${oldIndex} to ${newIndex}`)
-          }
-        }
-      })
-
-      /* Tickets sorting / category update */
-      Sortable.create(document.getElementById(`category-items-${category.key}`), {
-        group: 'items',
-        animation: 150,
-        swapThreshold: 1,
-        onEnd: evt => {
-          let ticketId = evt.item.id.replace('ticket-', '')
-          let categoryFrom = evt.from.id.replace('category-items-', '')
-          let categoryTo = evt.to.id.replace('category-items-', '')
-          let newIndex = evt.newIndex
-          let oldIndex = evt.oldIndex
-
-          if (categoryFrom !== categoryTo || newIndex !== oldIndex) {
-            console.log('anything to do')
-
-            console.log(this['tickets/getByProjectId'](id))
-          }
-
-          console.log(`${ticketId} moved from ${categoryFrom} to ${categoryTo} and from index ${oldIndex} to ${newIndex}`)
-        }
-      })
+    // wait for dom to update and create ids
+    this.$nextTick(() => {
       
+      this.categories.forEach(category => {
+        /* Categories sorting */
+        Sortable.create(document.getElementById(`categories`), {
+          group: 'categories',
+          animation: 150,
+          swapThreshold: 0.1,
+          handle: '.category-header',
+          filter: 'button',
+          onEnd: evt => {
+            let category = evt.item.id.replace('category-', '')
+            let newIndex = evt.newIndex
+            let oldIndex = evt.oldIndex
+            
+            if (newIndex !== oldIndex) {
+              console.log(`${category} moved from index ${oldIndex} to ${newIndex}`)
+            }
+          }
+        })
+  
+        /* Tickets sorting / category update */
+        Sortable.create(document.getElementById(`category-items-${category.key}`), {
+          group: 'items',
+          animation: 150,
+          swapThreshold: 1,
+          filter: 'button',
+          onEnd: evt => {
+            let ticketId = evt.item.id.replace('ticket-', '')
+            let categoryFrom = evt.from.id.replace('category-items-', '')
+            let categoryTo = evt.to.id.replace('category-items-', '')
+            let newIndex = evt.newIndex
+            let oldIndex = evt.oldIndex
+  
+            if (categoryFrom !== categoryTo || newIndex !== oldIndex) {
+              console.log('anything to do')
+  
+              console.log(this['tickets/getByProjectId'](id))
+            }
+  
+            console.log(`${ticketId} moved from ${categoryFrom} to ${categoryTo} and from index ${oldIndex} to ${newIndex}`)
+          }
+        })
+        
+      })
+
     })
   },
 
@@ -246,12 +275,16 @@ export default {
       } else {
         let ticket = this.tickets.find(ticket => ticket.id === id)
         this.ticketId = ticket.id
+        this.ticketColor = ticket.color
         this.ticketCategory = ticket.category
         this.ticketTitle = ticket.title
         this.ticketDescription = ticket.description
       }
 
       this.ticketDialogVisible = true
+      this.$nextTick(() => {
+        this.validateTicketForm()
+      })
     },
 
     closeTicketDialog() {
@@ -279,13 +312,24 @@ export default {
         color: this.ticketColor
       }
 
-      this['tickets/add'](ticketData).then(() => {
-        this.tickets = this['tickets/getByProjectId'](this.project.id)
+      if(this.ticketId === null) {
+        this['tickets/add'](ticketData).then(() => {
+          this.tickets = this['tickets/getByProjectId'](this.project.id)
 
-        this.$refs.notification.show('Ticket has been created')
+          this.$refs.notification.show('Ticket has been created')
 
-        this.closeTicketDialog()
-      })
+          this.closeTicketDialog()
+        })
+      } else {
+        ticketData.id = this.ticketId
+        this['tickets/update'](ticketData).then(() => {
+          this.tickets = this['tickets/getByProjectId'](this.project.id)
+
+          this.$refs.notification.show('Ticket has been updated')
+
+          this.closeTicketDialog()
+        })
+      }
     },
 
     async validateTicketForm() {
@@ -297,7 +341,8 @@ export default {
     },
 
     ...mapActions([
-      'tickets/add'
+      'tickets/add',
+      'tickets/update'
     ])
   },
 
@@ -313,7 +358,8 @@ export default {
 
     ...mapGetters([
       'projects/getById',
-      'tickets/getByProjectId'
+      'tickets/getByProjectId',
+      'categories/getByProjectId'
     ])
   }
 }
