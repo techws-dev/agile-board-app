@@ -1,5 +1,5 @@
 <template>
-  <v-app>
+  <v-app :theme="theme">
     <v-app-bar
       color="primary"
       prominent
@@ -9,6 +9,20 @@
       <v-toolbar-title>Agile Board App</v-toolbar-title>
 
       <template v-slot:append>
+        <v-btn-toggle 
+          mandatory
+          v-model="theme"
+          class="mr-4"
+        >
+          <v-btn value="dark" size="small" class="text-white">
+            <v-icon>mdi-weather-night</v-icon>
+          </v-btn>
+
+          <v-btn value="light" size="small" class="text-white">
+            <v-icon>mdi-weather-sunny</v-icon>
+          </v-btn>
+        </v-btn-toggle>
+
         <v-btn icon="mdi-github" href="https://github.com/techws-dev/agile-board-app" target="_blank"></v-btn>
       </template>
     </v-app-bar>
@@ -23,7 +37,7 @@
         <v-list-item title="About" to="/about"></v-list-item>
       </v-list>
     </v-navigation-drawer>
-    <v-main>
+    <v-main style="min-height: 100vh">
       <router-view />
     </v-main>
   </v-app>
@@ -31,14 +45,32 @@
 
 <script>
 
-import { mapGetters } from "vuex"
+import { mapGetters, mapActions } from "vuex"
 
 export default {
   name: 'App',
 
   data: () => ({
-    drawer: true
+    drawer: true,
+    theme: 'light'
   }),
+
+  mounted() {
+    this.theme = this.$store.state.settings.theme
+  },
+
+  watch: {
+    // eslint-disable-next-line no-unused-vars
+    theme(newTheme, oldTheme) {
+      this['settings/updateTheme'](newTheme)
+    }
+  },
+
+  methods: {
+    ...mapActions([
+      'settings/updateTheme'
+    ])
+  },
 
   computed: {
     ...mapGetters({
