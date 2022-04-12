@@ -58,13 +58,13 @@
             :id="'ticket-' + ticket.id"
             :style="'background-color: ' + colors[ticket.color].lighten1 + ';'"
           >
-            <v-card-title>
+            <v-card-title class="text-black">
               {{ ticket.title }}
             </v-card-title>
-            <v-card-text v-if="ticket.description.length">
+            <v-card-text v-if="ticket.description.length" class="text-black">
               {{ ticket.description }}
             </v-card-text>
-            <v-card-text v-else class="font-italic">
+            <v-card-text v-else class="font-italic text-black">
               no description
             </v-card-text>
             <v-card-actions>
