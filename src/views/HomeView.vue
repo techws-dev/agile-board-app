@@ -178,17 +178,16 @@ export default {
 
     openProjectDialog(id) {
       if (id == null) {
+        this.projectFormValid = false
         this.resetProjectDialog()
       } else {
+        this.projectFormValid = true
         let project = this.projects.find(project => project.id === id)
         this.projectId = project.id
         this.projectName = project.name
       }
 
       this.projectDialogVisible = true
-      this.$nextTick(() => {
-        this.validateProjectForm()
-      })
     },
 
     closeProjectDialog() {

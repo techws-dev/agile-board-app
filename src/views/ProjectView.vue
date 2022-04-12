@@ -27,12 +27,13 @@
         style="min-width: 250px;max-width: 250px;"
         v-for="category in categories" :key="category.key"
         :id="'category-' + category.key">
-        <div class="d-flex category-header bg-black text-white pa-2 mb-2 select-none" v-bind:id="category.key">
-          <h3 class="text-white text-truncate flex-grow-1">{{ category.label }}</h3>
+        <div class="d-flex category-header pa-2 mb-2 select-none" v-bind:id="category.key">
+          <h3 class="text-truncate flex-grow-1">{{ category.label }}</h3>
           
           <v-spacer></v-spacer>
 
           <v-btn
+            variant="plain"
             class="mr-2"
             color="primary"
             icon="mdi-pencil"
@@ -41,6 +42,7 @@
           </v-btn>
 
           <v-btn
+            variant="plain"
             color="red"
             icon="mdi-delete"
             size="x-small"
@@ -59,8 +61,11 @@
             <v-card-title>
               {{ ticket.title }}
             </v-card-title>
-            <v-card-text>
+            <v-card-text v-if="ticket.description.length">
               {{ ticket.description }}
+            </v-card-text>
+            <v-card-text v-else class="font-italic">
+              no description
             </v-card-text>
             <v-card-actions>
               <v-spacer></v-spacer>
@@ -68,15 +73,17 @@
               <v-btn
                 color="primary"
                 icon="mdi-pencil"
-                size="small"
+                size="x-small"
                 @click.prevent="openTicketDialog(ticket.id)"
+                class="bg-white"
               >
               </v-btn>
 
               <v-btn
                 color="red"
                 icon="mdi-delete"
-                size="small"
+                size="x-small"
+                class="bg-white"
               >
               </v-btn>
             </v-card-actions>
@@ -271,8 +278,10 @@ export default {
   methods: {
     openTicketDialog(id) {
       if (id == null) {
+        this.ticketFormValid = false
         this.resetTicketDialog()
       } else {
+        this.ticketFormValid = true
         let ticket = this.tickets.find(ticket => ticket.id === id)
         this.ticketId = ticket.id
         this.ticketColor = ticket.color
@@ -282,9 +291,6 @@ export default {
       }
 
       this.ticketDialogVisible = true
-      this.$nextTick(() => {
-        this.validateTicketForm()
-      })
     },
 
     closeTicketDialog() {
@@ -380,6 +386,10 @@ export default {
   #ticket-dialog-card {
     width: 100%;
   }
+}
+
+.category-header {
+  border-bottom: 2px solid #ccc;
 }
 
 </style>
