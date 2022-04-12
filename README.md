@@ -25,3 +25,14 @@ npm run build
 npm run lint
 ```
 
+## Roadmap
+
+### v0.2.0
+
+- finish project functionalities
+- add tests
+
+### v0.3.0
+
+- split monolithic views into multiple components
+- switch from Options API to Composition API
