@@ -25,7 +25,7 @@
     <v-row id="categories" dense style="overflow: auto;" class="align-start">
       <v-col
         style="min-width: 250px;max-width: 250px;"
-        v-for="category in categories" :key="category.key"
+        v-for="category in sortedCategories" :key="category.key"
         :id="'category-' + category.key">
         <div class="d-flex category-header pa-2 mb-2 select-none" v-bind:id="category.key">
           <h3 class="text-truncate flex-grow-1">{{ category.label }}</h3>
@@ -109,7 +109,6 @@
             ref="ticketForm"
             v-model="ticketFormValid"
             validation-lazy
-            @submit="saveTicket"
             >
 
             <v-btn-toggle class="flex-wrap mb-8" v-model="ticketColor" style="height: auto;" mandatory>
@@ -343,7 +342,9 @@ export default {
     },
 
     filteredTicketsByCategory(category) {
-      return this.tickets.filter(ticket => ticket.category === category)
+      return this.tickets.filter(ticket => ticket.category === category).sort((a, b) => {
+        return a.order - b.order
+      })
     },
 
     ...mapActions([
@@ -353,6 +354,12 @@ export default {
   },
 
   computed: {
+    sortedCategories() {
+      return [...this.categories].sort((a, b) => {
+        a.order - b.order
+      })
+    },
+
     categoriesSelect() {
       return this.categories.map(category => category.key)
     },

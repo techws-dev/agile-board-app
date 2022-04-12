@@ -3,19 +3,23 @@
 const DEFAULT_CATEGORIES = [
   {
     key: 'todo',
-    label: 'TODO'
+    label: 'TODO',
+    order: 0,
   },
   {
     key: 'progress',
-    label: 'Progress'
+    label: 'Progress',
+    order: 1,
   },
   {
     key: 'to-verify',
-    label: 'To verify'
+    label: 'To verify',
+    order: 2,
   },
   {
     key: 'done',
-    label: 'Done'
+    label: 'Done',
+    order: 3,
   },
 ]
 
@@ -36,6 +40,7 @@ export default {
         state.categories.push({
           key: category.key,
           label: category.label,
+          order: category.order,
           projectId: id
         })
       });

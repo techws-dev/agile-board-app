@@ -70,8 +70,7 @@
           <v-form
             ref="form"
             v-model="projectFormValid"
-            validation-lazy
-            @submit="saveProject">
+            validation-lazy>
 
             <v-text-field
               v-model="projectName"
