@@ -25,8 +25,8 @@
     <v-row id="categories" dense style="overflow: auto;" class="align-start">
       <v-col
         style="min-width: 250px;max-width: 250px;"
-        v-for="category in sortedCategories" :key="category.key"
-        :id="'category-' + category.key">
+        v-for="category in sortedCategories" :key="category.id"
+        :id="'category-' + category.id">
         <div class="d-flex category-header pa-2 mb-2 select-none" v-bind:id="category.key">
           <h3 class="text-truncate flex-grow-1">{{ category.label }}</h3>
           
@@ -236,12 +236,17 @@ export default {
           handle: '.category-header',
           filter: 'button',
           onEnd: evt => {
-            let category = evt.item.id.replace('category-', '')
+            let categoryId = evt.item.id.replace('category-', '')
+            let projectId = id
             let newIndex = evt.newIndex
             let oldIndex = evt.oldIndex
             
             if (newIndex !== oldIndex) {
-              console.log(`${category} moved from index ${oldIndex} to ${newIndex}`)
+              this['categories/move']({
+                id: categoryId, 
+                projectId, 
+                oldIndex, 
+                newIndex})
             }
           }
         })
@@ -254,15 +259,21 @@ export default {
           filter: 'button',
           onEnd: evt => {
             let ticketId = evt.item.id.replace('ticket-', '')
+            let projectId = id
             let categoryFrom = evt.from.id.replace('category-items-', '')
             let categoryTo = evt.to.id.replace('category-items-', '')
             let newIndex = evt.newIndex
             let oldIndex = evt.oldIndex
   
             if (categoryFrom !== categoryTo || newIndex !== oldIndex) {
-              console.log('anything to do')
-  
-              console.log(this['tickets/getByProjectId'](id))
+              this['tickets/move']({
+                id: ticketId, 
+                projectId, 
+                categoryFrom, 
+                categoryTo, 
+                oldIndex, 
+                newIndex
+              })
             }
   
             console.log(`${ticketId} moved from ${categoryFrom} to ${categoryTo} and from index ${oldIndex} to ${newIndex}`)
@@ -349,14 +360,16 @@ export default {
 
     ...mapActions([
       'tickets/add',
-      'tickets/update'
+      'tickets/update',
+      'tickets/move',
+      'categories/move'
     ])
   },
 
   computed: {
     sortedCategories() {
       return [...this.categories].sort((a, b) => {
-        a.order - b.order
+        return a.order - b.order
       })
     },
 
