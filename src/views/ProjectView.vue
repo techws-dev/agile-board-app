@@ -94,79 +94,6 @@
       </v-col>
     </v-row>
     
-    <v-dialog
-      v-model="ticketDialogVisible"
-      >
-      <v-card
-        id="ticket-dialog-card">
-        <v-card-title v-if="ticketId === null">
-          New Ticket
-        </v-card-title>
-        <v-card-title v-else>
-          Update Ticket
-        </v-card-title>
-
-        <v-card-text>
-          <v-form
-            ref="ticketForm"
-            v-model="ticketFormValid"
-            validation-lazy
-            >
-
-            <v-btn-toggle class="flex-wrap mb-8" v-model="ticketColor" style="height: auto;" mandatory>
-              <v-btn v-for="color in colorsSelect" :key="color" :value="color[0]" class="pa-2" size="small" :style="'background-color: ' + color[1].lighten1 + ';'">
-                {{ color[0] }}
-              </v-btn>
-            </v-btn-toggle>
-
-            <v-select
-              v-model="ticketCategory"
-              :items="categoriesSelect"
-              label="Category"
-              required
-            ></v-select>
-
-            <v-text-field
-              v-model="ticketTitle"
-              :counter="50"
-              :rules="titleRules"
-              label="Title"
-              required
-              @input="validateTicketForm()"
-              @keyup.enter="saveTicket"
-            ></v-text-field>
-
-            <v-textarea
-              v-model="ticketDescription"
-              label="Description"
-            ></v-textarea>
-
-          </v-form>
-        </v-card-text>
-        <v-card-actions>
-          <v-spacer></v-spacer>
-
-          <v-btn
-            class="mr-2"
-            color="normal"
-            text
-            @click="closeTicketDialog"
-          >
-            Cancel
-          </v-btn>
-
-          <v-btn
-            color="primary"
-            text
-            :disabled="!ticketFormValid"
-            @click="saveTicket"
-          >
-            Save
-          </v-btn>
-        </v-card-actions>
-      </v-card>
-    </v-dialog>
-
     <category-dialog
       :visible="categoryDialogVisible"
       :category="currentCategory"
@@ -176,6 +103,15 @@
     >
     </category-dialog>
 
+    <ticket-dialog
+      :visible="ticketDialogVisible"
+      :ticket="currentTicket"
+      @closeTicketDialog="closeTicketDialog"
+      @ticketAdded="handleTicketAdded"
+      @ticketUpdated="handleTicketUpdated"
+    >
+    </ticket-dialog>
+
     <notification-component ref="notification"></notification-component>
   </v-container>
 </template>
@@ -183,7 +119,8 @@
 <script>
 
 import { mapGetters, mapActions } from "vuex"
-import CategoryDialog from '../components/CategoryDialog.vue'
+import CategoryDialog from '../components/dialogs/CategoryDialog.vue'
+import TicketDialog from '../components/dialogs/TicketDialog.vue'
 import NotificationComponent from '../components/NotificationComponent.vue'
 import Sortable from 'sortablejs/modular/sortable.complete.esm.js'
 
@@ -192,6 +129,7 @@ import colors from 'vuetify/lib/util/colors'
 export default {
   components: {
     CategoryDialog,
+    TicketDialog,
     NotificationComponent
   },
   data: () => ({
@@ -208,17 +146,8 @@ export default {
       name: null
     },
     tickets: [],
-    ticketId: null,
-    ticketCategory: 'todo',
-    ticketColor: null,
-    ticketTitle: '',
-    ticketDescription: '',
     ticketDialogVisible: false,
-    ticketFormValid: false,
-    titleRules: [
-      v => !!v || 'Title is required',
-      v => (v && v.length <= 50) || 'Title must be less than 50 characters',
-    ],
+    currentTicket: {},
     categoryDialogVisible: false,
     currentCategory: {}
   }),
@@ -320,27 +249,6 @@ export default {
       this.resetCurrentCategory()
     },
 
-    openTicketDialog(id) {
-      if (id == null) {
-        this.ticketFormValid = false
-        this.resetTicketDialog()
-      } else {
-        this.ticketFormValid = true
-        let ticket = this.tickets.find(ticket => ticket.id === id)
-        this.ticketId = ticket.id
-        this.ticketColor = ticket.color
-        this.ticketCategory = ticket.category
-        this.ticketTitle = ticket.title
-        this.ticketDescription = ticket.description
-      }
-
-      this.ticketDialogVisible = true
-    },
-
-    closeTicketDialog() {
-      this.ticketDialogVisible = false
-    },
-
     handleCategoryAdded() {
       this.$refs.notification.show('Category has been created')
       this.loadData()
@@ -351,14 +259,6 @@ export default {
       this.loadData()
     },
 
-    resetTicketDialog() {
-      this.ticketId = null
-      this.ticketColor = 'yellow'
-      this.ticketCategory = 'todo'
-      this.ticketTitle = ''
-      this.ticketDescription = ''
-    },
-
     resetCurrentCategory() {
       this.currentCategory = {
         id: null,
@@ -366,6 +266,45 @@ export default {
         key: null,
         label: null,
         order: null
+      }
+    },
+
+    openTicketDialog(id) {
+      this.resetCurrentTicket()
+
+      if (id !== null) {
+        let ticket = this.tickets.find(ticket => ticket.id === id)
+        this.currentTicket = {...ticket}
+      }
+
+      this.ticketDialogVisible = true
+    },
+
+    closeTicketDialog() {
+      this.ticketDialogVisible = false
+      this.resetCurrentTicket()
+    },
+
+    handleTicketAdded() {
+      this.$refs.notification.show('Ticket has been created')
+      this.loadData()
+    },
+
+    handleTicketUpdated() {
+      this.$refs.notification.show('Ticket has been updated')
+      this.loadData()
+    },
+
+    resetCurrentTicket() {
+      this.currentTicket = {
+        id: null,
+        projectId: this.project.id,
+        color: 'yellow',
+        category: [...this.categories].sort((a, b) => {
+          return a.order - b.order
+        }).map(category => category.key)[0],
+        title: '',
+        description: ''
       }
     },
 
@@ -402,10 +341,6 @@ export default {
       }
     },
 
-    async validateTicketForm() {
-      await this.$refs.ticketForm.validate()
-    },
-
     filteredTicketsByCategory(category) {
       return this.tickets.filter(ticket => ticket.category === category).sort((a, b) => {
         return a.order - b.order
@@ -413,8 +348,6 @@ export default {
     },
 
     ...mapActions([
-      'tickets/add',
-      'tickets/update',
       'tickets/move',
       'categories/move'
     ])
@@ -425,15 +358,6 @@ export default {
       return [...this.categories].sort((a, b) => {
         return a.order - b.order
       })
-    },
-
-    categoriesSelect() {
-      return this.categories.map(category => category.key)
-    },
-
-    colorsSelect() {
-      // eslint-disable-next-line no-unused-vars
-      return Object.entries(this.colors).filter(([key, value]) => key !== 'shades')
     },
 
     ...mapGetters([
@@ -450,16 +374,6 @@ export default {
 
 .select-none{
   user-select: none;
-}
-
-#ticket-dialog-card {
-  width: 500px;
-}
-
-@media (max-width: 500px) {
-  #ticket-dialog-card {
-    width: 100%;
-  }
 }
 
 .category-header {
