@@ -16,6 +16,7 @@
 
     <v-btn
       color="primary"
+      @click="openCategoryDialog(null)"
     >
       New category
     </v-btn>
@@ -38,6 +39,7 @@
             color="primary"
             icon="mdi-pencil"
             size="x-small"
+            @click="openCategoryDialog(category.id)"
           >
           </v-btn>
 
@@ -165,6 +167,15 @@
       </v-card>
     </v-dialog>
 
+    <category-dialog
+      :visible="categoryDialogVisible"
+      :category="currentCategory"
+      @closeCategoryDialog="closeCategoryDialog"
+      @categoryAdded="handleCategoryAdded"
+      @categoryUpdated="handleCategoryUpdated"
+    >
+    </category-dialog>
+
     <notification-component ref="notification"></notification-component>
   </v-container>
 </template>
@@ -172,6 +183,7 @@
 <script>
 
 import { mapGetters, mapActions } from "vuex"
+import CategoryDialog from '../components/CategoryDialog.vue'
 import NotificationComponent from '../components/NotificationComponent.vue'
 import Sortable from 'sortablejs/modular/sortable.complete.esm.js'
 
@@ -179,6 +191,7 @@ import colors from 'vuetify/lib/util/colors'
 
 export default {
   components: {
+    CategoryDialog,
     NotificationComponent
   },
   data: () => ({
@@ -206,10 +219,11 @@ export default {
       v => !!v || 'Title is required',
       v => (v && v.length <= 50) || 'Title must be less than 50 characters',
     ],
+    categoryDialogVisible: false,
+    currentCategory: {}
   }),
 
   async mounted() {
-    console.log(this.colors)
     let id = this.$route.params.id
 
     let project = await this['projects/getById'](id)
@@ -221,8 +235,7 @@ export default {
       return
     }
     
-    this.tickets = await this['tickets/getByProjectId'](id)
-    this.categories = await this['categories/getByProjectId'](id)
+    await this.loadData()
 
     // wait for dom to update and create ids
     this.$nextTick(() => {
@@ -286,6 +299,27 @@ export default {
   },
 
   methods: {
+    async loadData() {
+      this.tickets = await this['tickets/getByProjectId'](this.project.id)
+      this.categories = await this['categories/getByProjectId'](this.project.id)
+    },
+
+    openCategoryDialog(id) {
+      this.resetCurrentCategory()
+
+      if (id !== null) {
+        let category = this.categories.find(category => category.id === id)
+        this.currentCategory = {...category}
+      }
+
+      this.categoryDialogVisible = true
+    },
+
+    closeCategoryDialog() {
+      this.categoryDialogVisible = false
+      this.resetCurrentCategory()
+    },
+
     openTicketDialog(id) {
       if (id == null) {
         this.ticketFormValid = false
@@ -307,12 +341,32 @@ export default {
       this.ticketDialogVisible = false
     },
 
+    handleCategoryAdded() {
+      this.$refs.notification.show('Category has been created')
+      this.loadData()
+    },
+
+    handleCategoryUpdated() {
+      this.$refs.notification.show('Category has been updated')
+      this.loadData()
+    },
+
     resetTicketDialog() {
       this.ticketId = null
       this.ticketColor = 'yellow'
       this.ticketCategory = 'todo'
       this.ticketTitle = ''
       this.ticketDescription = ''
+    },
+
+    resetCurrentCategory() {
+      this.currentCategory = {
+        id: null,
+        projectId: this.project.id,
+        key: null,
+        label: null,
+        order: null
+      }
     },
 
     async saveTicket() {

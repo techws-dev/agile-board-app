@@ -36,15 +36,28 @@ export default {
     },
   },
   mutations: {
+    add(state, {projectId, key, label}) {
+      let id = uuidv4()
+      let categoriesCount = state.categories.filter(categories => categories.projectId == projectId).length
+      state.categories.push({id, projectId, key, label, order: categoriesCount})
+    },
+
+    update(state, {id, projectId, key, label}) {
+      let i = state.categories.map(category => category.id).indexOf(id)
+      state.categories[i].projectId = projectId
+      state.categories[i].key = key
+      state.categories[i].label = label
+    },
+
     createDefaultCategoriesForProject(state, projectId) {
       DEFAULT_CATEGORIES.forEach(category => {
         let id = uuidv4()
         state.categories.push({
           id,
+          projectId,
           key: category.key,
           label: category.label,
-          order: category.order,
-          projectId
+          order: category.order
         })
       });
     },
@@ -74,6 +87,14 @@ export default {
     },
   },
   actions: {
+    add(context, {projectId, key, label}) {
+      context.commit('add', {projectId, key, label})
+    },
+
+    update(context, {id, projectId, key, label}) {
+      context.commit('update',  {id, projectId, key, label})
+    },
+
     createDefaultCategoriesForProject(context, projectId) {
       context.commit('createDefaultCategoriesForProject', projectId)
     },
