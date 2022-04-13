@@ -308,39 +308,6 @@ export default {
       }
     },
 
-    async saveTicket() {
-      await this.validateTicketForm()
-
-      if(!this.ticketFormValid) return
-
-      let ticketData = {
-        projectId: this.project.id,
-        title: this.ticketTitle, 
-        description: this.ticketDescription, 
-        category: this.ticketCategory,
-        color: this.ticketColor
-      }
-
-      if(this.ticketId === null) {
-        this['tickets/add'](ticketData).then(() => {
-          this.tickets = this['tickets/getByProjectId'](this.project.id)
-
-          this.$refs.notification.show('Ticket has been created')
-
-          this.closeTicketDialog()
-        })
-      } else {
-        ticketData.id = this.ticketId
-        this['tickets/update'](ticketData).then(() => {
-          this.tickets = this['tickets/getByProjectId'](this.project.id)
-
-          this.$refs.notification.show('Ticket has been updated')
-
-          this.closeTicketDialog()
-        })
-      }
-    },
-
     filteredTicketsByCategory(category) {
       return this.tickets.filter(ticket => ticket.category === category).sort((a, b) => {
         return a.order - b.order
