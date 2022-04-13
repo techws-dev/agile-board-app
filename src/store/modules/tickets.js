@@ -26,6 +26,11 @@ export default {
       state.tickets[i].color = color
     },
 
+    delete(state, {id}) {
+      let i = state.tickets.map(ticket => ticket.id).indexOf(id)
+      state.tickets.splice(i, 1)
+    },
+
     move(state, {id, projectId, categoryFrom, categoryTo, oldIndex, newIndex}) {
       state.tickets.filter(ticket => ticket.projectId === projectId && ticket.category === categoryFrom && ticket.id !== id)
         .forEach(ticket => {
@@ -50,6 +55,10 @@ export default {
     deleteFromProject(state, id) {
       state.tickets = state.tickets.filter(ticket => ticket.projectId !== id)
     },
+
+    deleteFromCategory(state, {category, projectId}) {
+      state.tickets = state.tickets.filter(ticket => ticket.category !== category || ticket.projectId !== projectId)
+    },
   },
   actions: {
     add(context, {projectId, title, description, category, color}) {
@@ -61,12 +70,20 @@ export default {
       context.commit('update',  {id, projectId, title, description, category, color})
     },
 
+    delete(context, id) {
+      context.commit('delete', {id})
+    },
+
     move(context, {id, projectId, categoryFrom, categoryTo, oldIndex, newIndex}) {
       context.commit('move', {id, projectId, categoryFrom, categoryTo, oldIndex, newIndex})
     },
 
     deleteFromProject(context, id) {
       context.commit('deleteFromProject', id)
+    },
+
+    deleteFromCategory(context, {category, projectId}) {
+      context.commit('deleteFromCategory', {category, projectId})
     },
   },
 }
