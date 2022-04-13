@@ -3,7 +3,7 @@
     v-model="dialogVisible"
     >
     <v-card
-      id="ticket-dialog-card">
+      id="category-dialog-card">
       <v-card-title v-if="categoryId === null">
         New Category
       </v-card-title>
@@ -71,8 +71,8 @@ export default {
     }
   },
   data: () => ({
+    projectId: null,
     categoryId: null,
-    categoryProjectId: null,
     categoryLabel: null,
     categoryFormValid: false,
     labelRules: [
@@ -83,8 +83,8 @@ export default {
   watch: {
     visible(newValue, oldValue) {
       if (newValue === true && oldValue === false) {
+        this.projectId = this.category.projectId
         this.categoryId = this.category.id
-        this.categoryProjectId = this.category.projectId
         this.categoryLabel = this.category.label
 
         this.categoryFormValid = false
@@ -136,3 +136,17 @@ export default {
 }
 
 </script>
+
+<style scoped>
+
+#category-dialog-card {
+  width: 500px;
+}
+
+@media (max-width: 500px) {
+  #category-dialog-card {
+    width: 100%;
+  }
+}
+
+</style>

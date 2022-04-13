@@ -54,59 +54,14 @@
       </v-col>
     </v-row>
 
-    <v-dialog
-      v-model="projectDialogVisible"
-      >
-      <v-card
-        id="project-dialog-card">
-        <v-card-title v-if="projectId === null">
-          Create a project
-        </v-card-title>
-        <v-card-title v-else>
-          Update project
-        </v-card-title>
-
-        <v-card-text>
-          <v-form
-            ref="form"
-            v-model="projectFormValid"
-            validation-lazy>
-
-            <v-text-field
-              v-model="projectName"
-              :counter="50"
-              :rules="nameRules"
-              label="Project name"
-              required
-              @input="validateProjectForm()"
-              @keyup.enter="saveProject"
-            ></v-text-field>
-
-          </v-form>
-        </v-card-text>
-        <v-card-actions>
-          <v-spacer></v-spacer>
-
-          <v-btn
-            class="mr-2"
-            color="normal"
-            text
-            @click="closeProjectDialog"
-          >
-            Cancel
-          </v-btn>
-
-          <v-btn
-            color="primary"
-            text
-            :disabled="!projectFormValid"
-            @click="saveProject"
-          >
-            Save
-          </v-btn>
-        </v-card-actions>
-      </v-card>
-    </v-dialog>
+    <project-dialog
+      :visible="projectDialogVisible"
+      :project="currentProject"
+      @closeProjectDialog="closeProjectDialog"
+      @projectAdded="handleProjectAdded"
+      @projectUpdated="handleProjectUpdated"
+    >
+    </project-dialog>
 
     <v-dialog
       v-model="deleteProjectDialogVisible"
@@ -145,21 +100,17 @@
 <script>
 
 import { mapState, mapActions } from 'vuex'
+import ProjectDialog from '../components/dialogs/ProjectDialog.vue'
 import NotificationComponent from '../components/NotificationComponent.vue'
 
 export default {
   components: {
+    ProjectDialog,
     NotificationComponent
   },
   data: () => ({
-    projectFormValid: false,
-    projectId: null,
-    projectName: '',
-    nameRules: [
-      v => !!v || 'Name is required',
-      v => (v && v.length <= 50) || 'Name must be less than 50 characters',
-    ],
     projectDialogVisible: false,
+    currentProject: {},
     deleteProjectDialogVisible: false,
     deleteProjectId: null
   }),
@@ -176,14 +127,11 @@ export default {
     },
 
     openProjectDialog(id) {
-      if (id == null) {
-        this.projectFormValid = false
-        this.resetProjectDialog()
-      } else {
-        this.projectFormValid = true
+      this.resetCurrentProject()
+
+      if (id !== null) {
         let project = this.projects.find(project => project.id === id)
-        this.projectId = project.id
-        this.projectName = project.name
+        this.currentProject = {...project}
       }
 
       this.projectDialogVisible = true
@@ -191,40 +139,22 @@ export default {
 
     closeProjectDialog() {
       this.projectDialogVisible = false
+      this.resetCurrentProject()
     },
 
-    resetProjectDialog() {
-      this.projectId = null
-      this.projectName = ''
+    handleProjectAdded() {
+      this.$refs.notification.show('Project has been created')
     },
 
-    async validateProjectForm() {
-      await this.$refs.form.validate()
+    handleProjectUpdated() {
+      this.$refs.notification.show('Project has been updated')
     },
 
-    async saveProject() {
-      await this.validateProjectForm()
-
-      if(!this.projectFormValid) return
-
-      if(this.projectId === null) {
-        this['projects/add'](this.projectName).then(() => {
-          this.$refs.notification.show('Project has been created')
-  
-          this.closeProjectDialog()
-        })
-      } else {
-        let projectData = {
-          id: this.projectId,
-          name: this.projectName
-        }
-        this['projects/update'](projectData).then(() => {
-          this.$refs.notification.show('Project has been updated')
-  
-          this.closeProjectDialog()
-        })
+    resetCurrentProject() {
+      this.currentProject = {
+        id: null,
+        name: null
       }
-
     },
 
     async deleteProject() {
@@ -240,8 +170,6 @@ export default {
     },
 
     ...mapActions([
-      'projects/add',
-      'projects/update',
       'projects/delete'
     ])
   },
@@ -252,17 +180,3 @@ export default {
 }
 
 </script>
-
-<style scoped>
-
-#project-dialog-card {
-  width: 500px;
-}
-
-@media (max-width: 500px) {
-  #project-dialog-card {
-    width: 100%;
-  }
-}
-
-</style>
