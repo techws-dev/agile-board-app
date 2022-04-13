@@ -27,7 +27,7 @@ npm run lint
 
 ## Roadmap
 
-- finish project functionalities
+- finish project functionalities &#9989;
 - add tests
 - split monolithic views into multiple components
 - switch from Options API to Composition API

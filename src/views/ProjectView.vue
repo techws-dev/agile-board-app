@@ -48,6 +48,7 @@
             color="red"
             icon="mdi-delete"
             size="x-small"
+            @click="openDeleteCategoryDialog(category.id)"
           >
           </v-btn>
         </div>
@@ -85,6 +86,7 @@
                 color="red"
                 icon="mdi-delete"
                 size="x-small"
+                @click.prevent="openDeleteTicketDialog(ticket.id)"
                 class="bg-white"
               >
               </v-btn>
@@ -103,6 +105,14 @@
     >
     </category-dialog>
 
+    <delete-category-dialog
+      :visible="deleteCategoryDialogVisible"
+      :categoryId="deleteCategoryId"
+      @closeDeleteCategoryDialog="closeDeleteCategoryDialog"
+      @categoryDeleted="handleCategoryDeleted"
+    >
+    </delete-category-dialog>
+
     <ticket-dialog
       :visible="ticketDialogVisible"
       :ticket="currentTicket"
@@ -112,6 +122,14 @@
     >
     </ticket-dialog>
 
+    <delete-ticket-dialog
+      :visible="deleteTicketDialogVisible"
+      :ticketId="deleteTicketId"
+      @closeDeleteTicketDialog="closeDeleteTicketDialog"
+      @ticketDeleted="handleTicketDeleted"
+    >
+    </delete-ticket-dialog>
+
     <notification-component ref="notification"></notification-component>
   </v-container>
 </template>
@@ -120,6 +138,8 @@
 
 import { mapGetters, mapActions } from "vuex"
 import CategoryDialog from '../components/dialogs/CategoryDialog.vue'
+import DeleteCategoryDialog from '../components/dialogs/DeleteCategoryDialog.vue'
+import DeleteTicketDialog from '../components/dialogs/DeleteTicketDialog.vue'
 import TicketDialog from '../components/dialogs/TicketDialog.vue'
 import NotificationComponent from '../components/NotificationComponent.vue'
 import Sortable from 'sortablejs/modular/sortable.complete.esm.js'
@@ -129,6 +149,8 @@ import colors from 'vuetify/lib/util/colors'
 export default {
   components: {
     CategoryDialog,
+    DeleteCategoryDialog,
+    DeleteTicketDialog,
     TicketDialog,
     NotificationComponent
   },
@@ -149,7 +171,11 @@ export default {
     ticketDialogVisible: false,
     currentTicket: {},
     categoryDialogVisible: false,
-    currentCategory: {}
+    currentCategory: {},
+    deleteTicketDialogVisible: false,
+    deleteTicketId: '',
+    deleteCategoryDialogVisible: false,
+    deleteCategoryId: ''
   }),
 
   async mounted() {
@@ -165,72 +191,76 @@ export default {
     }
     
     await this.loadData()
-
-    // wait for dom to update and create ids
-    this.$nextTick(() => {
-      
-      this.categories.forEach(category => {
-        /* Categories sorting */
-        Sortable.create(document.getElementById(`categories`), {
-          group: 'categories',
-          animation: 150,
-          swapThreshold: 0.1,
-          handle: '.category-header',
-          filter: 'button',
-          onEnd: evt => {
-            let categoryId = evt.item.id.replace('category-', '')
-            let projectId = id
-            let newIndex = evt.newIndex
-            let oldIndex = evt.oldIndex
-            
-            if (newIndex !== oldIndex) {
-              this['categories/move']({
-                id: categoryId, 
-                projectId, 
-                oldIndex, 
-                newIndex})
-            }
-          }
-        })
-  
-        /* Tickets sorting / category update */
-        Sortable.create(document.getElementById(`category-items-${category.key}`), {
-          group: 'items',
-          animation: 150,
-          swapThreshold: 1,
-          filter: 'button',
-          onEnd: evt => {
-            let ticketId = evt.item.id.replace('ticket-', '')
-            let projectId = id
-            let categoryFrom = evt.from.id.replace('category-items-', '')
-            let categoryTo = evt.to.id.replace('category-items-', '')
-            let newIndex = evt.newIndex
-            let oldIndex = evt.oldIndex
-  
-            if (categoryFrom !== categoryTo || newIndex !== oldIndex) {
-              this['tickets/move']({
-                id: ticketId, 
-                projectId, 
-                categoryFrom, 
-                categoryTo, 
-                oldIndex, 
-                newIndex
-              })
-            }
-  
-            console.log(`${ticketId} moved from ${categoryFrom} to ${categoryTo} and from index ${oldIndex} to ${newIndex}`)
-          }
-        })
-        
-      })
-
-    })
   },
 
   methods: {
     async loadData() {
       this.tickets = await this['tickets/getByProjectId'](this.project.id)
       this.categories = await this['categories/getByProjectId'](this.project.id)
+
+      this.loadSortable()
+    },
+
+    loadSortable() {
+      // wait for dom to update and create ids
+      this.$nextTick(() => {
+        
+        this.categories.forEach(category => {
+          /* Categories sorting */
+          Sortable.create(document.getElementById(`categories`), {
+            group: 'categories',
+            animation: 150,
+            swapThreshold: 0.1,
+            handle: '.category-header',
+            filter: 'button',
+            onEnd: evt => {
+              let categoryId = evt.item.id.replace('category-', '')
+              let projectId = this.project.id
+              let newIndex = evt.newIndex
+              let oldIndex = evt.oldIndex
+              
+              if (newIndex !== oldIndex) {
+                this['categories/move']({
+                  id: categoryId, 
+                  projectId, 
+                  oldIndex, 
+                  newIndex})
+              }
+            }
+          })
+    
+          /* Tickets sorting / category update */
+          Sortable.create(document.getElementById(`category-items-${category.key}`), {
+            group: 'items',
+            animation: 150,
+            swapThreshold: 1,
+            filter: 'button',
+            onEnd: evt => {
+              let ticketId = evt.item.id.replace('ticket-', '')
+              let projectId = this.project.id
+              let categoryFrom = evt.from.id.replace('category-items-', '')
+              let categoryTo = evt.to.id.replace('category-items-', '')
+              let newIndex = evt.newIndex
+              let oldIndex = evt.oldIndex
+    
+              if (categoryFrom !== categoryTo || newIndex !== oldIndex) {
+                this['tickets/move']({
+                  id: ticketId, 
+                  projectId, 
+                  categoryFrom, 
+                  categoryTo, 
+                  oldIndex, 
+                  newIndex
+                })
+              }
+    
+              console.log(`${ticketId} moved from ${categoryFrom} to ${categoryTo} and from index ${oldIndex} to ${newIndex}`)
+            }
+          })
+          
+        })
+
+      })
     },
 
     openCategoryDialog(id) {
@@ -267,6 +297,21 @@ export default {
         label: null,
         order: null
       }
+    },
+
+    openDeleteCategoryDialog(id) {
+      this.deleteCategoryId = id
+      this.deleteCategoryDialogVisible = true
+    },
+
+    closeDeleteCategoryDialog() {
+      this.deleteCategoryId = ''
+      this.deleteCategoryDialogVisible = false
+    },
+
+    handleCategoryDeleted() {
+      this.$refs.notification.show('Category has been deleted')
+      this.loadData()
     },
 
     openTicketDialog(id) {
@@ -306,6 +351,21 @@ export default {
         title: '',
         description: ''
       }
+    },
+
+    openDeleteTicketDialog(id) {
+      this.deleteTicketId = id
+      this.deleteTicketDialogVisible = true
+    },
+
+    closeDeleteTicketDialog() {
+      this.deleteTicketId = ''
+      this.deleteTicketDialogVisible = false
+    },
+
+    handleTicketDeleted() {
+      this.$refs.notification.show('Ticket has been deleted')
+      this.loadData()
     },
 
     filteredTicketsByCategory(category) {

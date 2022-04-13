@@ -49,6 +49,11 @@ export default {
       state.categories[i].label = label
     },
 
+    delete(state, {id}) {
+      let i = state.categories.map(category => category.id).indexOf(id)
+      state.categories.splice(i, 1)
+    },
+
     createDefaultCategoriesForProject(state, projectId) {
       DEFAULT_CATEGORIES.forEach(category => {
         let id = uuidv4()
@@ -93,6 +98,15 @@ export default {
 
     update(context, {id, projectId, key, label}) {
       context.commit('update',  {id, projectId, key, label})
+    },
+
+    delete(context, id) {
+      let i = context.state.categories.map(category => category.id).indexOf(id)
+      let category = context.state.categories[i].key
+      let projectId = context.state.categories[i].projectId
+      
+      context.commit('delete', {id})
+      context.dispatch('tickets/deleteFromCategory', {category, projectId}, {root: true})
     },
 
     createDefaultCategoriesForProject(context, projectId) {

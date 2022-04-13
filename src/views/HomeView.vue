@@ -63,35 +63,13 @@
     >
     </project-dialog>
 
-    <v-dialog
-      v-model="deleteProjectDialogVisible"
-      >
-      <v-card
-        id="project-dialog-card">
-        <v-card-title>Delete confirmation</v-card-title>
-        <v-card-text>Are you sure to delete this project ?</v-card-text>
-        <v-card-actions>
-          <v-spacer></v-spacer>
-
-          <v-btn
-            class="mr-2"
-            color="normal"
-            text
-            @click="closeDeleteProjectDialog"
-          >
-            Cancel
-          </v-btn>
-
-          <v-btn
-            color="primary"
-            text
-            @click="deleteProject"
-          >
-            Confirm
-          </v-btn>
-        </v-card-actions>
-      </v-card>
-    </v-dialog>
+    <delete-project-dialog
+      :visible="deleteProjectDialogVisible"
+      :projectId="deleteProjectId"
+      @closeDeleteProjectDialog="closeDeleteProjectDialog"
+      @projectDeleted="handleProjectDeleted"
+    >
+    </delete-project-dialog>
 
     <notification-component ref="notification"></notification-component>
   </v-container>
@@ -99,33 +77,25 @@
 
 <script>
 
-import { mapState, mapActions } from 'vuex'
+import { mapState } from 'vuex'
 import ProjectDialog from '../components/dialogs/ProjectDialog.vue'
+import DeleteProjectDialog from '../components/dialogs/DeleteProjectDialog.vue'
 import NotificationComponent from '../components/NotificationComponent.vue'
 
 export default {
   components: {
     ProjectDialog,
+    DeleteProjectDialog,
     NotificationComponent
   },
   data: () => ({
     projectDialogVisible: false,
     currentProject: {},
     deleteProjectDialogVisible: false,
-    deleteProjectId: null
+    deleteProjectId: ''
   }),
 
   methods: {
-    openDeleteProjectDialog(id) {
-      this.deleteProjectId = id
-      this.deleteProjectDialogVisible = true
-    },
-
-    closeDeleteProjectDialog() {
-      this.deleteProjectId = null
-      this.deleteProjectDialogVisible = false
-    },
-
     openProjectDialog(id) {
       this.resetCurrentProject()
 
@@ -157,21 +127,19 @@ export default {
       }
     },
 
-    async deleteProject() {
-      let id = this.deleteProjectId
-
-      if(id === null) return
-
-      this['projects/delete'](id).then(() => {
-        this.$refs.notification.show('Project has been deleted')
-        
-        this.closeDeleteProjectDialog()
-      })
+    openDeleteProjectDialog(id) {
+      this.deleteProjectId = id
+      this.deleteProjectDialogVisible = true
     },
 
-    ...mapActions([
-      'projects/delete'
-    ])
+    closeDeleteProjectDialog() {
+      this.deleteProjectId = ''
+      this.deleteProjectDialogVisible = false
+    },
+
+    handleProjectDeleted() {
+      this.$refs.notification.show('Project has been deleted')
+    }
   },
 
   computed: {
