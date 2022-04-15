@@ -2,7 +2,9 @@
 
 An application that display a virtual agile board for managing your project workflow.
 
-Developed with __Vue 3__.
+Developed with __Vue 3__ and __Vuetify 3__.
+
+    __Vuetify 3__ is in beta for the time being, so some functionalities can be buggy, especially on mobile and tablet.
 
 
 ## Project setup
@@ -29,5 +31,6 @@ npm run lint
 
 - finish project functionalities &#9989;
 - add tests
+- improve for mobiles
 - split monolithic views into multiple components
 - switch from Options API to Composition API
