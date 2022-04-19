@@ -14,11 +14,11 @@
           v-model="theme"
           class="mr-4"
         >
-          <v-btn value="dark" size="small" class="text-white">
+          <v-btn value="dark" size="small">
             <v-icon>mdi-weather-night</v-icon>
           </v-btn>
 
-          <v-btn value="light" size="small" class="text-white">
+          <v-btn value="light" size="small">
             <v-icon>mdi-weather-sunny</v-icon>
           </v-btn>
         </v-btn-toggle>
@@ -79,20 +79,3 @@ export default {
   }
 }
 </script>
-
-<style>
-
-/* ugly fixes */
-.v-dialog .v-overlay__content {
-  max-width: none !important;
-  max-height: none !important;
-}
-
-
-@media (max-width: 959.98px) {
-  .v-dialog .v-overlay__content {
-    max-width: none !important;
-  }
-}
-
-</style>
