@@ -13,8 +13,9 @@ export default {
   },
   mutations: {
     add(state, {id, projectId, title, description, category, color}) {
+      let creationDate = new Date().toISOString()
       let ticketsInCategory = state.tickets.filter(ticket => ticket.projectId == projectId && ticket.category == category)
-      state.tickets.push({id, projectId, title, description, category, color, order: ticketsInCategory.length})
+      state.tickets.push({id, projectId, title, description, category, color, order: ticketsInCategory.length, creationDate})
     },
 
     update(state, {id, projectId, title, description, category, color}) {

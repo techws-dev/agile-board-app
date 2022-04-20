@@ -30,7 +30,9 @@
         v-for="project in projects" :key="project">
         <v-card v-bind:href="'/project/' + project.id">
           <v-card-title>{{ project.name }}</v-card-title>
-          <v-card-text>{{ project.id }}</v-card-text>
+          <v-card-text>
+            Created: {{ new Date(project.creationDate).toLocaleString() }}
+          </v-card-text>
           <v-card-actions>
             <v-spacer></v-spacer>
 

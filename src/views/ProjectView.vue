@@ -70,6 +70,9 @@
             <v-card-text v-else class="font-italic text-black">
               no description
             </v-card-text>
+            <v-card-text class="text-black">
+              Created: {{ new Date(ticket.creationDate).toLocaleString() }}
+            </v-card-text>
             <v-card-actions>
               <v-spacer></v-spacer>
 

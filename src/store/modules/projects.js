@@ -13,7 +13,8 @@ export default {
   },
   mutations: {
     add(state, {id, name}) {
-      state.projects.push({id, name})
+      let creationDate = new Date().toISOString()
+      state.projects.push({id, name, creationDate})
     },
 
     update(state, {id, name}) {
