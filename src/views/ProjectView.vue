@@ -57,7 +57,7 @@
           <v-card 
             v-for="ticket in filteredTicketsByCategory(category.key)" 
             :key="ticket.id" 
-            class="mb-2 select-none"
+            class="ticket mb-2 select-none"
             :id="'ticket-' + ticket.id"
             :style="'background-color: ' + colors[ticket.color].lighten1 + ';'"
           >
@@ -408,6 +408,11 @@ export default {
 
 .category-header {
   border-bottom: 2px solid #ccc;
+}
+
+.category-header:hover,
+.ticket:hover {
+  cursor: move;
 }
 
 </style>
