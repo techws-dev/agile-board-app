@@ -11,11 +11,19 @@ export default {
     },
   },
   mutations: {
+    updateAppVersion(state, version) {
+      state.appVersion = version
+    },
+
     updateTheme(state, theme) {
       state.theme = theme
     }
   },
   actions: {
+    updateAppVersion(context, version) {
+      context.commit('updateAppVersion', version)
+    },
+
     updateTheme(context, theme) {
       context.commit('updateTheme', theme)
     }

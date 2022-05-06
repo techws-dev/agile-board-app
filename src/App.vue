@@ -56,6 +56,10 @@ export default {
   }),
 
   mounted() {
+    if (this.$store.state.settings.appVersion !== process.env.VUE_APP_VERSION) {
+      console.log('update app version')
+      this['settings/updateAppVersion'](process.env.VUE_APP_VERSION)
+    }
     this.theme = this.$store.state.settings.theme
   },
 
@@ -68,6 +72,7 @@ export default {
 
   methods: {
     ...mapActions([
+      'settings/updateAppVersion',
       'settings/updateTheme'
     ])
   },
