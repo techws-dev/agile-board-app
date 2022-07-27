@@ -28,7 +28,7 @@
         sm="6"
         lg="4"
         v-for="project in projects" :key="project">
-        <v-card v-bind:href="'/project/' + project.id">
+        <v-card v-bind:href="baseUrl + '#/project/' + project.id">
           <v-card-title>{{ project.name }}</v-card-title>
           <v-card-text>
             Created: {{ new Date(project.creationDate).toLocaleString() }}
@@ -91,6 +91,7 @@ export default {
     NotificationComponent
   },
   data: () => ({
+    baseUrl: process.env.BASE_URL,
     projectDialogVisible: false,
     currentProject: {},
     deleteProjectDialogVisible: false,
