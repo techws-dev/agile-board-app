@@ -2,7 +2,7 @@
 
 An application that display a virtual agile board for managing your project workflow.
 
-You can try it there: [http://agile-board-app.techws.net/](http://agile-board-app.techws.net/)
+You can try it there: [DEMO](https://techws-dev.github.io/agile-board-app/)
 
 Developed with __Vue 3__ and __Vuetify 3__.
 
