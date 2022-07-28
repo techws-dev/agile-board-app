@@ -15,7 +15,9 @@
         <v-form
           ref="projectForm"
           v-model="projectFormValid"
-          validation-lazy>
+          validation-lazy
+          @submit="saveProject"
+          >
 
           <v-text-field
             v-model="projectName"
@@ -24,7 +26,6 @@
             label="Project name"
             required
             @input="validateProjectForm()"
-            @keyup.enter="saveProject"
           ></v-text-field>
 
         </v-form>
@@ -98,7 +99,9 @@ export default {
     }
   },
   methods: {
-    async saveProject() {
+    async saveProject(event) {
+      event.preventDefault()
+      
       await this.validateProjectForm()
 
       if(!this.projectFormValid) return

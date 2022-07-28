@@ -16,6 +16,7 @@
           ref="categoryForm"
           v-model="categoryFormValid"
           validation-lazy
+          @submit="saveCategory"
           >
           
           <v-text-field
@@ -25,7 +26,6 @@
             label="Name"
             required
             @input="validateCategoryForm()"
-            @keyup.enter="saveCategory"
           ></v-text-field>
 
         </v-form>
@@ -101,7 +101,9 @@ export default {
     }
   },
   methods: {
-    async saveCategory() {
+    async saveCategory(event) {
+      event.preventDefault()
+      
       await this.validateCategoryForm()
 
       if(!this.categoryFormValid) return

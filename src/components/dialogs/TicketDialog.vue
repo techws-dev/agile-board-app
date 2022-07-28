@@ -16,6 +16,7 @@
           ref="ticketForm"
           v-model="ticketFormValid"
           validation-lazy
+          @submit="saveTicket"
           >
 
           <v-btn-toggle class="flex-wrap mb-8" v-model="ticketColor" style="height: auto;" mandatory>
@@ -152,7 +153,9 @@ export default {
     ])
   },
   methods: {
-    async saveTicket() {
+    async saveTicket(event) {
+      event.preventDefault()
+      
       await this.validateTicketForm()
 
       if(!this.ticketFormValid) return
